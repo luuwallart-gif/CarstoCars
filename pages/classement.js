@@ -48,8 +48,9 @@ export default function Classement() {
         <section style={{ maxWidth: "900px", margin: "0 auto", padding: "0 40px 60px" }}>
 
           {/* TABLEAU PILOTES */}
-          <h3 style={{ fontFamily: "'Racing Sans One', cursive", fontSize: "28px", margin: "0 0 20px", textTransform: "uppercase" }}>
-            🏎️ Pilotes
+                    <h3 style={{ fontFamily: "'Racing Sans One', cursive", fontSize: "28px", margin: "0 0 20px", textTransform: "uppercase", display: "flex", alignItems: "center", gap: "12px" }}>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/3/33/F1.svg" alt="F1" style={{ height: "26px" }} />
+            Pilotes
           </h3>
           <div style={{ background: "#141b2e", borderRadius: "16px", overflow: "hidden", border: "1px solid #253150", marginBottom: "50px", boxShadow: "0 8px 30px rgba(0,0,0,0.4)" }}>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -77,8 +78,9 @@ export default function Classement() {
           </div>
 
           {/* TABLEAU ÉCURIES */}
-          <h3 style={{ fontFamily: "'Racing Sans One', cursive", fontSize: "28px", margin: "0 0 20px", textTransform: "uppercase" }}>
-            🏆 Écuries
+                    <h3 style={{ fontFamily: "'Racing Sans One', cursive", fontSize: "28px", margin: "0 0 20px", textTransform: "uppercase", display: "flex", alignItems: "center", gap: "12px" }}>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/3/33/F1.svg" alt="F1" style={{ height: "26px" }} />
+            Écuries
           </h3>
           <div style={{ background: "#141b2e", borderRadius: "16px", overflow: "hidden", border: "1px solid #253150", boxShadow: "0 8px 30px rgba(0,0,0,0.4)" }}>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
