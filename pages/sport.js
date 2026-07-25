@@ -1,54 +1,120 @@
-const competitions = [
-  { nom: "Formule 1", desc: "Le sommet du sport automobile mondial", couleur: "#e10600" },
-  { nom: "Formule 2", desc: "L'antichambre de la F1", couleur: "#0090ff" },
-  { nom: "Formule 3", desc: "Les futurs talents en formation", couleur: "#00b8d4" },
-  { nom: "Formule 4", desc: "La porte d'entrée du monopole", couleur: "#00d4ff" },
-  { nom: "WRC", desc: "Championnat du monde des rallyes", couleur: "#ff6b00" },
-  { nom: "GT World", desc: "Les GT s'affrontent sur circuit", couleur: "#9c27b0" },
-  { nom: "WEC", desc: "Championnat du monde d'endurance", couleur: "#ffb300" },
-  { nom: "Formule E", desc: "La compétition 100% électrique", couleur: "#00e676" },
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+
+// Les 8 compétitions avec leurs mots-clés de filtrage
+const COMPETITIONS = [
+  { id: 'f1', nom: 'F1', emoji: '🏎️', mots: ['formule 1', 'formula 1', 'f1', 'grand prix'] },
+  { id: 'f2', nom: 'F2', emoji: '🏎️', mots: ['formule 2', 'formula 2', 'f2'] },
+  { id: 'f3', nom: 'F3', emoji: '🏎️', mots: ['formule 3', 'formula 3', 'f3'] },
+  { id: 'f4', nom: 'F4', emoji: '🏎️', mots: ['formule 4', 'formula 4', 'f4'] },
+  { id: 'wrc', nom: 'WRC', emoji: '🌍', mots: ['wrc', 'rallye', 'rally'] },
+  { id: 'gt', nom: 'GT World', emoji: '🏆', mots: ['gt world', 'gt3', 'gt world challenge'] },
+  { id: 'wec', nom: 'WEC', emoji: '🏆', mots: ['wec', 'endurance', 'le mans', 'hypercar'] },
+  { id: 'fe', nom: 'Formule E', emoji: '⚡', mots: ['formule e', 'formula e', 'formule-e'] },
 ];
 
 export default function Sport() {
+  const [actus, setActus] = useState([]);
+  const [chargement, setChargement] = useState(true);
+  const [ongletActif, setOngletActif] = useState('f1');
+
+  useEffect(() => {
+    fetch('/api/news')
+      .then((res) => res.json())
+      .then((data) => {
+        setActus(data);
+        setChargement(false);
+      })
+      .catch(() => setChargement(false));
+  }, []);
+
+  // On récupère la compétition sélectionnée
+  const competition = COMPETITIONS.find((c) => c.id === ongletActif);
+
+  // On filtre les actus selon les mots-clés de la compétition
+  const actusFiltrees = actus.filter((article) => {
+    const texte = (article.title + ' ' + (article.contentSnippet || '')).toLowerCase();
+    return competition.mots.some((mot) => texte.includes(mot));
+  });
+
   return (
-    <main style={{ background: "linear-gradient(180deg, #0a0e1a 0%, #141b2e 100%)", color: "#fff", minHeight: "100vh", fontFamily: "'Rajdhani', sans-serif" }}>
+    <div style={{ minHeight: '100vh', background: '#0a0a0a', color: '#fff', fontFamily: 'system-ui, sans-serif' }}>
+      {/* Barre de navigation */}
+      <nav style={{ padding: '20px 40px', borderBottom: '1px solid #222', display: 'flex', gap: '30px', alignItems: 'center' }}>
+        <Link href="/" style={{ color: '#fff', textDecoration: 'none', fontWeight: 'bold', fontSize: '20px' }}>
+          🏎️ Carstocars
+        </Link>
+        <Link href="/" style={{ color: '#aaa', textDecoration: 'none' }}>Accueil</Link>
+        <Link href="/sport" style={{ color: '#e10600', textDecoration: 'none', fontWeight: 'bold' }}>Compétitions</Link>
+        <Link href="/auto" style={{ color: '#aaa', textDecoration: 'none' }}>Marques</Link>
+      </nav>
 
-      {/* Barre du haut */}
-      <header style={{ padding: "20px 40px", background: "rgba(10,14,26,0.8)", borderBottom: "3px solid #00d4ff", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", position: "sticky", top: 0, zIndex: 10, backdropFilter: "blur(10px)" }}>
-        <h1 style={{ fontFamily: "'Racing Sans One', cursive", background: "linear-gradient(90deg, #00d4ff, #e10600)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", margin: 0, fontSize: "32px", letterSpacing: "1px" }}>CARSTOCARS</h1>
-        <nav style={{ fontSize: "18px", fontWeight: "600", textTransform: "uppercase", letterSpacing: "1px" }}>
-          <a href="/" style={{ color: "#fff", marginRight: "24px", textDecoration: "none" }}>Accueil</a>
-          <a href="/auto" style={{ color: "#fff", marginRight: "24px", textDecoration: "none" }}>Automobile</a>
-          <a href="/sport" style={{ color: "#00d4ff", textDecoration: "none" }}>Sport Auto</a>
-        </nav>
-      </header>
+      {/* Titre */}
+      <div style={{ padding: '40px 40px 20px' }}>
+        <h1 style={{ fontSize: '36px', margin: 0 }}>🏁 Sport Automobile</h1>
+        <p style={{ color: '#888', marginTop: '8px' }}>Toutes les actus de tes compétitions préférées</p>
+      </div>
 
-      {/* Bandeau titre */}
-      <section style={{ padding: "60px 40px 30px", textAlign: "center" }}>
-        <h2 style={{ fontFamily: "'Racing Sans One', cursive", fontSize: "48px", margin: "0 0 10px", textTransform: "uppercase" }}>
-          Sport <span style={{ color: "#e10600" }}>Automobile</span>
-        </h2>
-        <p style={{ color: "#8b9bb4", fontSize: "18px", margin: 0 }}>Toutes les compétitions, classements et pilotes</p>
-        <div style={{ width: "80px", height: "4px", background: "linear-gradient(90deg, #00d4ff, #e10600)", margin: "20px auto 0", borderRadius: "2px" }}></div>
-      </section>
-
-      {/* Grille de compétitions */}
-      <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "24px", padding: "20px 40px 60px", maxWidth: "1200px", margin: "0 auto" }}>
-        {competitions.map((comp, i) => (
-          <div key={i} style={{ background: "#141b2e", borderRadius: "16px", overflow: "hidden", border: "1px solid #253150", boxShadow: "0 8px 30px rgba(0,0,0,0.4)", cursor: "pointer", borderLeft: `5px solid ${comp.couleur}` }}>
-            <div style={{ padding: "24px" }}>
-              <h3 style={{ margin: "0 0 10px", fontSize: "26px", fontWeight: "700", color: comp.couleur }}>{comp.nom}</h3>
-              <p style={{ color: "#8b9bb4", fontSize: "15px", margin: 0, lineHeight: "1.5" }}>{comp.desc}</p>
-            </div>
-          </div>
+      {/* Menu à onglets */}
+      <div style={{ padding: '0 40px', display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '30px' }}>
+        {COMPETITIONS.map((c) => (
+          <button
+            key={c.id}
+            onClick={() => setOngletActif(c.id)}
+            style={{
+              padding: '10px 20px',
+              borderRadius: '30px',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '15px',
+              fontWeight: 'bold',
+              background: ongletActif === c.id ? '#e10600' : '#1a1a1a',
+              color: ongletActif === c.id ? '#fff' : '#aaa',
+              transition: 'all 0.2s',
+            }}
+          >
+            {c.emoji} {c.nom}
+          </button>
         ))}
-      </section>
+      </div>
 
-      {/* Bas de page */}
-      <footer style={{ borderTop: "1px solid #253150", padding: "24px 40px", color: "#5a6b8c", fontSize: "14px", textAlign: "center" }}>
-        © 2026 Carstocars — Passion automobile
-      </footer>
-
-    </main>
+      {/* Zone des actus */}
+      <div style={{ padding: '0 40px 60px' }}>
+        {chargement ? (
+          <p style={{ color: '#888' }}>Chargement des actus...</p>
+        ) : actusFiltrees.length === 0 ? (
+          <div style={{ background: '#1a1a1a', padding: '40px', borderRadius: '12px', textAlign: 'center' }}>
+            <p style={{ fontSize: '18px', margin: 0 }}>
+              {competition.emoji} Aucune actu {competition.nom} pour le moment
+            </p>
+            <p style={{ color: '#888', marginTop: '10px' }}>
+              Reviens plus tard, les news se mettent à jour tous les jours ! 🔄
+            </p>
+          </div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '25px' }}>
+            {actusFiltrees.map((article, i) => (
+              <a
+                key={i}
+                href={article.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ textDecoration: 'none', color: '#fff', background: '#1a1a1a', borderRadius: '12px', overflow: 'hidden', transition: 'transform 0.2s' }}
+              >
+                {article.image && (
+                  <img src={article.image} alt={article.title} style={{ width: '100%', height: '180px', objectFit: 'cover' }} />
+                )}
+                <div style={{ padding: '20px' }}>
+                  <h3 style={{ margin: '0 0 10px', fontSize: '17px', lineHeight: '1.4' }}>{article.title}</h3>
+                  <p style={{ color: '#888', fontSize: '13px', margin: 0 }}>
+                    {article.source} • {article.pubDate ? new Date(article.pubDate).toLocaleDateString('fr-FR') : ''}
+                  </p>
+                </div>
+              </a>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
