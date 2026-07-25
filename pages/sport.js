@@ -1,118 +1,136 @@
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
+import { useState, useEffect } from "react";
 
-// Les 8 compétitions avec leurs mots-clés de filtrage
 const COMPETITIONS = [
-  { id: 'f1', nom: 'F1', emoji: '🏎️', mots: ['formule 1', 'formula 1', 'f1', 'grand prix'] },
-  { id: 'f2', nom: 'F2', emoji: '🏎️', mots: ['formule 2', 'formula 2', 'f2'] },
-  { id: 'f3', nom: 'F3', emoji: '🏎️', mots: ['formule 3', 'formula 3', 'f3'] },
-  { id: 'f4', nom: 'F4', emoji: '🏎️', mots: ['formule 4', 'formula 4', 'f4'] },
-  { id: 'wrc', nom: 'WRC', emoji: '🌍', mots: ['wrc', 'rallye', 'rally'] },
-  { id: 'gt', nom: 'GT World', emoji: '🏆', mots: ['gt world', 'gt3', 'gt world challenge'] },
-  { id: 'wec', nom: 'WEC', emoji: '🏆', mots: ['wec', 'endurance', 'le mans', 'hypercar'] },
-  { id: 'fe', nom: 'Formule E', emoji: '⚡', mots: ['formule e', 'formula e', 'formule-e'] },
+  { id: 'f1', nom: 'F1', mots: ['formule 1', 'formula 1', 'f1', 'grand prix'] },
+  { id: 'f2', nom: 'F2', mots: ['formule 2', 'formula 2', 'f2'] },
+  { id: 'f3', nom: 'F3', mots: ['formule 3', 'formula 3', 'f3'] },
+  { id: 'f4', nom: 'F4', mots: ['formule 4', 'formula 4', 'f4'] },
+  { id: 'wrc', nom: 'WRC', mots: ['wrc', 'rallye', 'rally'] },
+  { id: 'gt', nom: 'GT World', mots: ['gt world', 'gt3', 'gt world challenge'] },
+  { id: 'wec', nom: 'WEC', mots: ['wec', 'endurance', 'le mans', 'hypercar'] },
+  { id: 'fe', nom: 'Formule E', mots: ['formule e', 'formula e', 'formule-e'] },
 ];
 
 export default function Sport() {
-  const [actus, setActus] = useState([]);
+  const [articles, setArticles] = useState([]);
   const [chargement, setChargement] = useState(true);
   const [ongletActif, setOngletActif] = useState('f1');
 
   useEffect(() => {
-    fetch('/api/news')
+    fetch("/api/news")
       .then((res) => res.json())
       .then((data) => {
-        // On s'assure que data est bien un tableau
-        setActus(Array.isArray(data) ? data : []);
+        setArticles(Array.isArray(data) ? data : []);
         setChargement(false);
       })
       .catch(() => setChargement(false));
   }, []);
 
-  // On récupère la compétition sélectionnée
   const competition = COMPETITIONS.find((c) => c.id === ongletActif);
 
-  // On filtre les actus selon les mots-clés (avec les BONS noms de champs !)
-  const actusFiltrees = actus.filter((article) => {
+  const articlesFiltres = articles.filter((article) => {
     const texte = ((article.titre || '') + ' ' + (article.resume || '')).toLowerCase();
     return competition.mots.some((mot) => texte.includes(mot));
   });
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0a0a0a', color: '#fff', fontFamily: 'system-ui, sans-serif' }}>
-      {/* Barre de navigation */}
-      <nav style={{ padding: '20px 40px', borderBottom: '1px solid #222', display: 'flex', gap: '30px', alignItems: 'center' }}>
-        <Link href="/" style={{ color: '#fff', textDecoration: 'none', fontWeight: 'bold', fontSize: '20px' }}>
-          Carstocars
-        </Link>
-        <Link href="/" style={{ color: '#aaa', textDecoration: 'none' }}>Accueil</Link>
-        <Link href="/sport" style={{ color: '#e10600', textDecoration: 'none', fontWeight: 'bold' }}>Compétitions</Link>
-      </nav>
+    <main style={{ background: "linear-gradient(180deg, #0a0e1a 0%, #141b2e 100%)", color: "#fff", minHeight: "100vh", fontFamily: "'Rajdhani', sans-serif" }}>
 
-      {/* Titre */}
-      <div style={{ padding: '40px 40px 20px' }}>
-        <h1 style={{ fontSize: '32px', margin: 0 }}>Compétitions</h1>
-        <p style={{ color: '#888', marginTop: '8px' }}>Les actus de tes championnats préférés</p>
-      </div>
+      {/* Barre du haut */}
+      <header style={{ padding: "20px 40px", background: "rgba(10,14,26,0.8)", borderBottom: "3px solid #00d4ff", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", position: "sticky", top: 0, zIndex: 10, backdropFilter: "blur(10px)" }}>
+        <h1 style={{ fontFamily: "'Racing Sans One', cursive", background: "linear-gradient(90deg, #00d4ff, #e10600)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", margin: 0, fontSize: "32px", letterSpacing: "1px" }}>CARSTOCARS</h1>
+        <nav style={{ fontSize: "18px", fontWeight: "600", textTransform: "uppercase", letterSpacing: "1px" }}>
+          <a href="/" style={{ color: "#fff", marginRight: "24px", textDecoration: "none" }}>Accueil</a>
+          <a href="/auto" style={{ color: "#fff", marginRight: "24px", textDecoration: "none" }}>Automobile</a>
+          <a href="/sport" style={{ color: "#00d4ff", textDecoration: "none" }}>Sport Auto</a>
+        </nav>
+      </header>
 
-      {/* Onglets */}
-      <div style={{ padding: '0 40px', display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '30px' }}>
+      {/* Bandeau titre */}
+      <section style={{ padding: "60px 40px 30px", textAlign: "center" }}>
+        <h2 style={{ fontFamily: "'Racing Sans One', cursive", fontSize: "48px", margin: "0 0 10px", textTransform: "uppercase" }}>
+          Le <span style={{ color: "#e10600" }}>Sport</span> Auto
+        </h2>
+        <p style={{ color: "#8b9bb4", fontSize: "18px", margin: 0 }}>Toutes les compétitions du monde de la course automobile</p>
+        <div style={{ width: "80px", height: "4px", background: "linear-gradient(90deg, #00d4ff, #e10600)", margin: "20px auto 0", borderRadius: "2px" }}></div>
+      </section>
+
+      {/* Onglets des compétitions */}
+      <section style={{ display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap", padding: "0 40px 40px" }}>
         {COMPETITIONS.map((c) => (
           <button
             key={c.id}
             onClick={() => setOngletActif(c.id)}
             style={{
-              padding: '10px 20px',
-              borderRadius: '25px',
-              border: 'none',
-              cursor: 'pointer',
-              fontWeight: 'bold',
-              fontSize: '15px',
-              background: ongletActif === c.id ? '#e10600' : '#1a1a1a',
-              color: '#fff',
-              transition: 'background 0.2s',
+              padding: "10px 22px",
+              borderRadius: "30px",
+              border: ongletActif === c.id ? "2px solid #00d4ff" : "2px solid #253150",
+              background: ongletActif === c.id ? "linear-gradient(90deg, #00d4ff, #e10600)" : "#141b2e",
+              color: "#fff",
+              fontSize: "16px",
+              fontWeight: "700",
+              fontFamily: "'Rajdhani', sans-serif",
+              textTransform: "uppercase",
+              letterSpacing: "1px",
+              cursor: "pointer",
+              transition: "all 0.2s",
             }}
           >
             {c.nom}
           </button>
         ))}
-      </div>
+      </section>
 
-      {/* Liste des actus */}
-      <div style={{ padding: '0 40px 60px' }}>
-        {chargement ? (
-          <p style={{ color: '#888' }}>Chargement des actus...</p>
-        ) : actusFiltrees.length === 0 ? (
-          <div style={{ background: '#1a1a1a', padding: '40px', borderRadius: '12px', textAlign: 'center' }}>
-            <p style={{ fontSize: '18px', margin: 0 }}>
-              Aucune actu {competition.nom} pour le moment
-            </p>
-            <p style={{ color: '#888', marginTop: '10px' }}>
-              Reviens plus tard, les news se mettent à jour tous les jours !
-            </p>
-          </div>
-        ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '25px' }}>
-            {actusFiltrees.map((article, i) => (
-              <a
-                key={i}
-                href={article.lien}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ textDecoration: 'none', color: '#fff', background: '#1a1a1a', borderRadius: '12px', overflow: 'hidden' }}
-              >
-                {article.image && (
-                  <img src={article.image} alt={article.titre} style={{ width: '100%', height: '180px', objectFit: 'cover' }} />
-                )}
-                <div style={{ padding: '20px' }}>
-                  <h3 style={{ margin: '0 0 10px', fontSize: '17px', lineHeight: '1.4' }}>{article.titre}</h3>
-                  <p style={{ color: '#888', fontSize: '13px', margin: 0 }}>{article.source}</p>
+      {/* Message de chargement */}
+      {chargement && (
+        <p style={{ textAlign: "center", color: "#8b9bb4", fontSize: "18px", padding: "40px" }}>
+          Chargement des dernières actus...
+        </p>
+      )}
+
+      {/* Message si vide */}
+      {!chargement && articlesFiltres.length === 0 && (
+        <p style={{ textAlign: "center", color: "#8b9bb4", fontSize: "18px", padding: "40px" }}>
+          Aucune actu {competition.nom} pour le moment — reviens plus tard ! 🏁
+        </p>
+      )}
+
+      {/* Grille d'articles */}
+      <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "28px", padding: "20px 40px 60px", maxWidth: "1200px", margin: "0 auto" }}>
+        {articlesFiltres.map((article, i) => (
+          <a
+            key={i}
+            href={article.lien}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ textDecoration: "none", color: "#fff" }}
+          >
+            <div style={{ background: "#141b2e", borderRadius: "16px", overflow: "hidden", border: "1px solid #253150", height: "100%", boxShadow: "0 8px 30px rgba(0,0,0,0.4)" }}>
+              {article.image && (
+                <div style={{ position: "relative" }}>
+                  <img src={article.image} alt={article.titre} style={{ width: "100%", height: "190px", objectFit: "cover", display: "block" }} />
+                  <span style={{ position: "absolute", top: "12px", left: "12px", background: "#e10600", color: "#fff", padding: "4px 12px", borderRadius: "20px", fontSize: "12px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "1px" }}>
+                    {article.source}
+                  </span>
                 </div>
-              </a>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
+              )}
+              <div style={{ padding: "18px" }}>
+                <h3 style={{ margin: "0 0 10px", fontSize: "20px", fontWeight: "700", lineHeight: "1.3" }}>{article.titre}</h3>
+                <p style={{ color: "#8b9bb4", fontSize: "15px", margin: "0 0 14px", lineHeight: "1.5" }}>{article.resume}</p>
+                <span style={{ color: "#00d4ff", fontSize: "14px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "1px" }}>
+                  Lire l'article →
+                </span>
+              </div>
+            </div>
+          </a>
+        ))}
+      </section>
+
+      {/* Bas de page */}
+      <footer style={{ borderTop: "1px solid #253150", padding: "24px 40px", color: "#5a6b8c", fontSize: "14px", textAlign: "center" }}>
+        © 2026 Carstocars — Passion automobile
+      </footer>
+
+    </main>
   );
 }
