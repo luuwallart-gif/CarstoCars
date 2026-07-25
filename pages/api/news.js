@@ -21,7 +21,7 @@ export default async function handler(req, res) {
     for (const f of flux) {
       try {
         const feed = await parser.parseURL(f.url);
-        const items = feed.items.slice(0, 4).map((item) => ({
+        const items = feed.items.slice(0, 8).map((item) => ({
           titre: item.title,
           resume: item.contentSnippet ? item.contentSnippet.slice(0, 120) + "..." : "",
           lien: item.link,
