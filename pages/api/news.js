@@ -7,6 +7,10 @@ const flux = [
   { source: "Caradisiac", url: "https://www.caradisiac.com/rss/actualites.xml" },
   { source: "Motorsport", url: "https://fr.motorsport.com/rss/all/news/" },
   { source: "Auto Plus", url: "https://www.autoplus.fr/rss" },
+  { source: "Motorsport F1", url: "https://fr.motorsport.com/rss/f1/news/" },
+  { source: "Motorsport WRC", url: "https://fr.motorsport.com/rss/wrc/news/" },
+  { source: "Motorsport WEC", url: "https://fr.motorsport.com/rss/wec/news/" },
+  { source: "Motorsport FE", url: "https://fr.motorsport.com/rss/formula-e/news/" },
 ];
 
 export default async function handler(req, res) {
