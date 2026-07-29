@@ -10,10 +10,10 @@ const drapeaux = {
   Russia: "🇷🇺", Turkey: "🇹🇷", Malaysia: "🇲🇾",
 };
 
-// Conversion lat/long → position sur la carte (projection équirectangulaire)
+// Conversion lat/long → position sur la carte
 const projection = (lat, long) => ({
   x: ((parseFloat(long) + 180) / 360) * 100,
-  y: ((90 - parseFloat(lat)) / 180) * 100,
+  y: ((84 - parseFloat(lat)) / 140) * 100,
 });
 
 export default function Courses() {
@@ -144,15 +144,14 @@ export default function Courses() {
             }}>
               {/* Fond planisphère */}
               <img
-                src="https://upload.wikimedia.org/wikipedia/commons/8/80/World_map_-_low_resolution.svg"
+                src="https://upload.wikimedia.org/wikipedia/commons/e/ec/World_map_blank_without_borders.svg"
                 alt="Carte du monde"
                 style={{
                   position: "absolute",
                   top: 0, left: 0,
                   width: "100%", height: "100%",
                   objectFit: "fill",
-                  opacity: 0.25,
-                  filter: "invert(1) hue-rotate(180deg)",
+                  opacity: 0.9,
                 }}
               />
 
@@ -227,7 +226,7 @@ export default function Courses() {
           {/* RÉSULTATS DU GP SÉLECTIONNÉ */}
           {gpSelect && (
             <section style={{ padding: "0 40px 60px", maxWidth: "1000px", margin: "0 auto" }}>
-              <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(0,212,255,0.3)", borderRadius: "12px", overflow: "hidden" }}>
+              <div style={{               background: "#0d1b2a", border: "1px solid rgba(0,212,255,0.3)", borderRadius: "12px", overflow: "hidden" }}>
                 {/* En-tête du GP */}
                 <div style={{ padding: "22px 25px", borderBottom: "1px solid rgba(255,255,255,0.1)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px" }}>
                   <div>
