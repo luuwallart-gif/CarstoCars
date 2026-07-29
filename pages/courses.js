@@ -1,272 +1,347 @@
-import { useState, useEffect } from "react";
-import dynamic from "next/dynamic";
+import { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 
-// Leaflet ne fonctionne que côté navigateur → import dynamique obligatoire
-const CarteMonde = dynamic(() => import("../components/CarteMonde"), {
+const CarteMonde = dynamic(() => import('../components/CarteMonde'), {
   ssr: false,
   loading: () => (
-    <div style={{
-      height: "500px",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      background: "#111",
-      borderRadius: "16px",
-      color: "#666",
-    }}>
-      Chargement de la carte… 🗺️
+    <div style={{ height: '500px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888' }}>
+      Chargement de la carte...
     </div>
   ),
 });
 
-const drapeaux = {
-  Australia: "🇦🇺", China: "🇨🇳", Japan: "🇯🇵", Bahrain: "🇧🇭",
-  "Saudi Arabia": "🇸🇦", USA: "🇺🇸", Italy: "🇮🇹", Monaco: "🇲🇨",
-  Spain: "🇪🇸", Canada: "🇨🇦", Austria: "🇦🇹", UK: "🇬🇧",
-  Hungary: "🇭🇺", Belgium: "🇧🇪", Netherlands: "🇳🇱", Azerbaijan: "🇦🇿",
-  Singapore: "🇸🇬", Mexico: "🇲🇽", Brazil: "🇧🇷", Qatar: "🇶🇦",
-  UAE: "🇦🇪", France: "🇫🇷", Germany: "🇩🇪", Portugal: "🇵🇹",
-  Russia: "🇷🇺", Turkey: "🇹🇷", Malaysia: "🇲🇾",
+// Nom du fichier SVG sur Wikimedia Commons pour chaque circuit
+const FICHIERS_TRACES = {
+  bahrain: 'Bahrain_International_Circuit--Grand_Prix_Layout.svg',
+  jeddah: 'Jeddah_Street_Circuit_2021.svg',
+  albert_park: 'Albert_Park_Circuit_2021.svg',
+  suzuka: 'Suzuka_circuit_map--2005.svg',
+  shanghai: 'Shanghai_International_Racing_Circuit_track_map.svg',
+  miami: 'Miami_International_Autodrome_2022.svg',
+  imola: 'Imola_2009.svg',
+  monaco: 'Circuit_Monaco.svg',
+  villeneuve: 'Circuit_Gilles_Villeneuve.svg',
+  catalunya: 'Circuit_de_Barcelona-Catalunya_2021.svg',
+  red_bull_ring: 'Red_Bull_Ring_2022.svg',
+  silverstone: 'Silverstone_Circuit_2020.svg',
+  hungaroring: 'Hungaroring.svg',
+  spa: 'Circuit_Spa_2007.svg',
+  zandvoort: 'Circuit_Zandvoort_2020.svg',
+  monza: 'Monza_track_map.svg',
+  baku: 'Baku_Formula_One_circuit_map.svg',
+  marina_bay: 'Singapore_Street_Circuit_2023.svg',
+  americas: 'Circuit_of_the_Americas.svg',
+  rodriguez: 'Autodromo_Hermanos_Rodriguez_2015.svg',
+  interlagos: 'Interlagos_2000_version.svg',
+  vegas: 'Las_Vegas_Grand_Prix_Circuit.svg',
+  losail: 'Losail_International_Circuit_2023.svg',
+  yas_marina: 'Yas_Marina_Circuit_2021.svg',
+  ricard: 'Circuit_Paul_Ricard_2018.svg',
+  sochi: 'Sochi_Autodrom_2014.svg',
+  istanbul: 'Istanbul_park.svg',
+  nurburgring: 'Nurburgring_-_Grand-Prix-Strecke.svg',
+  mugello: 'Mugello_Racing_Circuit_track_map.svg',
+  portimao: 'Algarve_International_Circuit.svg',
+  hockenheimring: 'Hockenheim.svg',
+  sepang: 'Sepang_International_Circuit.svg',
+  buddh: 'Buddh_International_Circuit.svg',
+  yeongam: 'Korean_International_Circuit.svg',
+  valencia: 'Valencia_Street_Circuit_2008.svg',
+};
+
+const COULEURS_ECURIES = {
+  ferrari: '#DC0000',
+  mercedes: '#00D2BE',
+  red_bull: '#0600EF',
+  mclaren: '#FF8700',
+  alpine: '#0090FF',
+  aston_martin: '#006F62',
+  williams: '#005AFF',
+  rb: '#6692FF',
+  sauber: '#52E252',
+  haas: '#B6BABD',
+  alphatauri: '#2B4562',
+  alfa: '#900000',
+  renault: '#FFF500',
+  racing_point: '#F596C8',
+  toro_rosso: '#469BFF',
+  force_india: '#F596C8',
+  lotus_f1: '#FFB800',
+  manor: '#323232',
 };
 
 export default function Courses() {
-  const [saison, setSaison] = useState("2026");
+  const [saison, setSaison] = useState('2025');
   const [courses, setCourses] = useState([]);
-  const [chargement, setChargement] = useState(true);
-  const [gpSelect, setGpSelect] = useState(null);
-  const [resultats, setResultats] = useState({});
-  const [chargementGp, setChargementGp] = useState(false);
+  const [gpSelectionne, setGpSelectionne] = useState(null);
+  const [resultats, setResultats] = useState([]);
+  const [chargement, setChargement] = useState(false);
+  const [urlTrace, setUrlTrace] = useState(null);
 
   const saisons = [];
-  for (let a = 2026; a >= 2015; a--) saisons.push(String(a));
+  for (let a = 2025; a >= 2015; a--) saisons.push(String(a));
 
+  // Charger le calendrier de la saison
   useEffect(() => {
-    setChargement(true);
-    setGpSelect(null);
-    setResultats({});
-    fetch(`https://api.jolpi.ca/ergast/f1/${saison}/races/?format=json`)
+    setCourses([]);
+    setGpSelectionne(null);
+    setResultats([]);
+    setUrlTrace(null);
+
+    fetch(`https://api.jolpi.ca/ergast/f1/${saison}/races/?format=json&limit=100`)
       .then((r) => r.json())
-      .then((data) => {
-        setCourses(data?.MRData?.RaceTable?.Races || []);
+      .then((d) => {
+        setCourses(d?.MRData?.RaceTable?.Races || []);
+      })
+      .catch(() => setCourses([]));
+  }, [saison]);
+
+  // Récupérer l'URL réelle du tracé via l'API Wikimedia
+  useEffect(() => {
+    if (!gpSelectionne) return;
+
+    const fichier = FICHIERS_TRACES[gpSelectionne.Circuit.circuitId];
+    if (!fichier) {
+      setUrlTrace(null);
+      return;
+    }
+
+    setUrlTrace(null);
+
+    fetch(
+      `https://commons.wikimedia.org/w/api.php?action=query&titles=File:${encodeURIComponent(
+        fichier
+      )}&prop=imageinfo&iiprop=url&iiurlwidth=500&format=json&origin=*`
+    )
+      .then((r) => r.json())
+      .then((d) => {
+        const pages = d?.query?.pages || {};
+        const premiere = Object.values(pages)[0];
+        const url = premiere?.imageinfo?.[0]?.thumburl || null;
+        setUrlTrace(url);
+      })
+      .catch(() => setUrlTrace(null));
+  }, [gpSelectionne]);
+
+  // Charger les résultats d'un GP
+  const chargerResultats = (course) => {
+    setGpSelectionne(course);
+    setResultats([]);
+    setChargement(true);
+
+    fetch(
+      `https://api.jolpi.ca/ergast/f1/${saison}/${course.round}/results/?format=json&limit=100`
+    )
+      .then((r) => r.json())
+      .then((d) => {
+        setResultats(d?.MRData?.RaceTable?.Races?.[0]?.Results || []);
         setChargement(false);
       })
       .catch(() => setChargement(false));
-  }, [saison]);
-
-  const chargerResultat = (course) => {
-    const cle = `${saison}-${course.round}`;
-    if (gpSelect === cle) {
-      setGpSelect(null);
-      return;
-    }
-    setGpSelect(cle);
-    if (resultats[cle]) return;
-    setChargementGp(true);
-    fetch(`https://api.jolpi.ca/ergast/f1/${saison}/${course.round}/results/?format=json`)
-      .then((r) => r.json())
-      .then((data) => {
-        const res = data?.MRData?.RaceTable?.Races?.[0]?.Results || [];
-        setResultats((prev) => ({ ...prev, [cle]: res }));
-        setChargementGp(false);
-      })
-      .catch(() => setChargementGp(false));
   };
 
-  const aujourdhui = new Date();
-  const courseSelectionnee = courses.find(
-    (c) => `${saison}-${c.round}` === gpSelect
-  );
-
   return (
-    <div style={{ minHeight: "100vh", background: "#0a0a0a", color: "#fff", fontFamily: "system-ui, -apple-system, sans-serif" }}>
+    <div style={{ background: '#0a0a0a', minHeight: '100vh', padding: '30px 20px', color: '#fff' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
 
-      {/* HEADER */}
-      <header style={{ padding: "24px 40px", borderBottom: "1px solid rgba(255,255,255,0.1)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
-        <a href="/" style={{ color: "#fff", textDecoration: "none", fontSize: "22px", fontWeight: "800", letterSpacing: "-0.5px" }}>
-          CARSTO<span style={{ color: "#00d4ff" }}>CARS</span>
-        </a>
-        <nav style={{ display: "flex", gap: "28px" }}>
-          <a href="/" style={{ color: "#aaa", textDecoration: "none", fontSize: "15px" }}>Accueil</a>
-          <a href="/courses" style={{ color: "#00d4ff", textDecoration: "none", fontSize: "15px", fontWeight: "600" }}>Courses</a>
-        </nav>
-      </header>
-
-      {/* TITRE + SÉLECTEUR */}
-      <section style={{ padding: "50px 40px 30px", textAlign: "center" }}>
-        <h1 style={{ fontSize: "clamp(32px, 5vw, 52px)", fontWeight: "900", margin: "0 0 12px", letterSpacing: "-1.5px" }}>
-          Calendrier <span style={{ color: "#00d4ff" }}>F1</span>
+        <h1 style={{ fontSize: '2rem', marginBottom: '10px' }}>
+          🏁 Grands Prix de Formule 1
         </h1>
-        <p style={{ color: "#888", fontSize: "17px", margin: "0 0 32px" }}>
-          Clique sur un circuit de la carte pour voir les résultats
+        <p style={{ color: '#888', marginBottom: '25px' }}>
+          Clique sur un point de la carte pour voir les résultats de la course.
         </p>
 
-        <div style={{ display: "inline-flex", alignItems: "center", gap: "12px", background: "rgba(255,255,255,0.05)", padding: "10px 18px", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.1)" }}>
-          <span style={{ color: "#888", fontSize: "14px" }}>Saison</span>
+        {/* Sélecteur de saison */}
+        <div style={{ marginBottom: '25px' }}>
+          <label style={{ marginRight: '10px', color: '#aaa' }}>Saison :</label>
           <select
             value={saison}
             onChange={(e) => setSaison(e.target.value)}
-            style={{ background: "#1a1a1a", color: "#fff", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "8px", padding: "8px 14px", fontSize: "16px", fontWeight: "700", cursor: "pointer", outline: "none" }}
+            style={{
+              background: '#1a1a1a',
+              color: '#fff',
+              border: '1px solid #333',
+              borderRadius: '6px',
+              padding: '8px 14px',
+              fontSize: '1rem',
+              cursor: 'pointer',
+            }}
           >
             {saisons.map((a) => (
               <option key={a} value={a}>{a}</option>
             ))}
           </select>
         </div>
-      </section>
 
-      {chargement ? (
-        <div style={{ textAlign: "center", padding: "80px", color: "#666" }}>
-          Chargement du calendrier… ⏳
+        {/* Carte */}
+        <div
+          style={{
+            border: '1px solid #222',
+            borderRadius: '12px',
+            overflow: 'hidden',
+            marginBottom: '10px',
+          }}
+        >
+          <CarteMonde courses={courses} onSelect={chargerResultats} />
         </div>
-      ) : courses.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "80px", color: "#666" }}>
-          Aucune course disponible pour {saison} 🤷
-        </div>
-      ) : (
-        <>
-          {/* CARTE LEAFLET */}
-          <section style={{ padding: "0 40px 40px", maxWidth: "1400px", margin: "0 auto" }}>
-            <CarteMonde
-              courses={courses}
-              gpSelect={gpSelect}
-              saison={saison}
-              onSelect={chargerResultat}
-              drapeaux={drapeaux}
-            />
-          </section>
 
-          {/* LISTE DES GP */}
-          <section style={{ padding: "0 40px 50px", maxWidth: "1400px", margin: "0 auto" }}>
-            <h2 style={{ fontSize: "20px", marginBottom: "20px", color: "#888", fontWeight: "600" }}>
-              {courses.length} Grands Prix
-            </h2>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "14px" }}>
-              {courses.map((c) => {
-                const cle = `${saison}-${c.round}`;
-                const actif = gpSelect === cle;
-                const passe = new Date(c.date) < aujourdhui;
-                return (
-                  <div
-                    key={cle}
-                    onClick={() => chargerResultat(c)}
-                    style={{
-                      background: actif ? "rgba(0,212,255,0.12)" : "rgba(255,255,255,0.04)",
-                      border: actif ? "1px solid #00d4ff" : "1px solid rgba(255,255,255,0.08)",
-                      borderRadius: "12px",
-                      padding: "16px 18px",
-                      cursor: "pointer",
-                      transition: "all 0.2s",
-                      opacity: passe ? 1 : 0.6,
-                    }}
-                  >
-                    <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
-                      <span style={{ fontSize: "22px" }}>
-                        {drapeaux[c.Circuit?.Location?.country] || "🏁"}
-                      </span>
-                      <span style={{ fontSize: "12px", color: "#00d4ff", fontWeight: "700", background: "rgba(0,212,255,0.1)", padding: "2px 8px", borderRadius: "5px" }}>
-                        R{c.round}
-                      </span>
-                      {!passe && (
-                        <span style={{ fontSize: "11px", color: "#888", marginLeft: "auto" }}>
-                          à venir
-                        </span>
-                      )}
-                    </div>
-                    <div style={{ fontWeight: "700", fontSize: "15px", marginBottom: "4px" }}>
-                      {c.raceName}
-                    </div>
-                    <div style={{ color: "#777", fontSize: "13px" }}>
-                      {c.Circuit?.Location?.locality} • {new Date(c.date).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
+        {courses.length > 0 && (
+          <p style={{ color: '#666', fontSize: '0.85rem', marginBottom: '30px' }}>
+            {courses.length} Grands Prix en {saison}
+          </p>
+        )}
 
-          {/* RÉSULTATS */}
-          {gpSelect && courseSelectionnee && (
-            <section style={{ padding: "0 40px 60px", maxWidth: "1100px", margin: "0 auto" }}>
-              <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "16px", overflow: "hidden" }}>
+        {/* Résultats + tracé */}
+        {gpSelectionne && (
+          <div
+            style={{
+              display: 'flex',
+              gap: '30px',
+              flexWrap: 'wrap',
+              background: '#111',
+              border: '1px solid #222',
+              borderRadius: '12px',
+              padding: '25px',
+            }}
+          >
+            {/* Colonne gauche : infos + tracé */}
+            <div style={{ flex: '0 0 300px', minWidth: '260px' }}>
+              <h2 style={{ fontSize: '1.3rem', margin: '0 0 8px' }}>
+                {gpSelectionne.raceName}
+              </h2>
+              <p style={{ color: '#888', fontSize: '0.9rem', margin: '0 0 6px' }}>
+                {gpSelectionne.Circuit.circuitName}
+              </p>
+              <p style={{ color: '#666', fontSize: '0.85rem', margin: '0 0 18px' }}>
+                📍 {gpSelectionne.Circuit.Location.locality}, {gpSelectionne.Circuit.Location.country}
+                <br />
+                📅 {new Date(gpSelectionne.date).toLocaleDateString('fr-FR', {
+                  day: 'numeric', month: 'long', year: 'numeric',
+                })}
+                <br />
+                🔢 Manche {gpSelectionne.round}
+              </p>
 
-                <div style={{ padding: "24px 28px", borderBottom: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", gap: "14px" }}>
-                  <span style={{ fontSize: "32px" }}>
-                    {drapeaux[courseSelectionnee.Circuit?.Location?.country] || "🏁"}
-                  </span>
-                  <div style={{ flex: 1 }}>
-                    <h3 style={{ margin: 0, fontSize: "22px", fontWeight: "800" }}>
-                      {courseSelectionnee.raceName}
-                    </h3>
-                    <p style={{ margin: "4px 0 0", color: "#888", fontSize: "14px" }}>
-                      {courseSelectionnee.Circuit?.circuitName} • {new Date(courseSelectionnee.date).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => setGpSelect(null)}
-                    style={{ background: "rgba(255,255,255,0.08)", border: "none", color: "#aaa", width: "34px", height: "34px", borderRadius: "8px", cursor: "pointer", fontSize: "18px" }}
-                  >
-                    ✕
-                  </button>
+              {urlTrace ? (
+                <img
+                  src={urlTrace}
+                  alt={`Tracé du ${gpSelectionne.Circuit.circuitName}`}
+                  style={{
+                    width: '100%',
+                    background: '#fff',
+                    borderRadius: '8px',
+                    padding: '12px',
+                    boxSizing: 'border-box',
+                  }}
+                />
+              ) : (
+                <div
+                  style={{
+                    background: '#1a1a1a',
+                    border: '1px dashed #333',
+                    borderRadius: '8px',
+                    padding: '30px 15px',
+                    textAlign: 'center',
+                    color: '#555',
+                    fontSize: '0.85rem',
+                  }}
+                >
+                  Tracé non disponible
                 </div>
+              )}
+            </div>
 
-                {chargementGp ? (
-                  <div style={{ padding: "50px", textAlign: "center", color: "#666" }}>
-                    Chargement des résultats… ⏳
-                  </div>
-                ) : !resultats[gpSelect] || resultats[gpSelect].length === 0 ? (
-                  <div style={{ padding: "50px", textAlign: "center", color: "#666" }}>
-                    Course pas encore disputée 🏁
-                  </div>
-                ) : (
-                  <div style={{ overflowX: "auto" }}>
-                    <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                      <thead>
-                        <tr style={{ background: "rgba(0,0,0,0.3)" }}>
-                          <th style={{ padding: "12px 18px", textAlign: "left", color: "#888", fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Pos</th>
-                          <th style={{ padding: "12px 18px", textAlign: "left", color: "#888", fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Pilote</th>
-                          <th style={{ padding: "12px 18px", textAlign: "left", color: "#888", fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Écurie</th>
-                          <th style={{ padding: "12px 18px", textAlign: "left", color: "#888", fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Temps</th>
-                          <th style={{ padding: "12px 18px", textAlign: "right", color: "#888", fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Pts</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {resultats[gpSelect].map((r) => {
-                          const pos = parseInt(r.position);
-                          const medaille = pos === 1 ? "🥇" : pos === 2 ? "🥈" : pos === 3 ? "🥉" : null;
-                          return (
-                            <tr key={r.position} style={{ borderTop: "1px solid rgba(255,255,255,0.06)", background: pos <= 3 ? "rgba(0,212,255,0.04)" : "transparent" }}>
-                              <td style={{ padding: "14px 18px", fontWeight: "800", fontSize: "16px" }}>
-                                {medaille || r.position}
-                              </td>
-                              <td style={{ padding: "14px 18px", fontWeight: "600" }}>
-                                {r.Driver?.givenName} {r.Driver?.familyName}
-                              </td>
-                              <td style={{ padding: "14px 18px", color: "#aaa" }}>
-                                {r.Constructor?.name}
-                              </td>
-                              <td style={{ padding: "14px 18px", color: "#aaa", fontFamily: "monospace", fontSize: "14px" }}>
-                                {r.Time?.time || r.status}
-                              </td>
-                              <td style={{ padding: "14px 18px", textAlign: "right", fontWeight: "700", color: parseInt(r.points) > 0 ? "#00d4ff" : "#555" }}>
-                                {r.points}
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </div>
-            </section>
-          )}
-        </>
-      )}
+            {/* Colonne droite : résultats */}
+            <div style={{ flex: '1 1 420px', minWidth: '300px' }}>
+              {chargement ? (
+                <p style={{ color: '#888' }}>Chargement des résultats...</p>
+              ) : resultats.length === 0 ? (
+                <p style={{ color: '#888' }}>
+                  Pas encore de résultats pour ce Grand Prix.
+                </p>
+              ) : (
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                    <thead>
+                      <tr style={{ borderBottom: '2px solid #333', color: '#888', textAlign: 'left' }}>
+                        <th style={{ padding: '10px 8px' }}>Pos</th>
+                        <th style={{ padding: '10px 8px' }}>Pilote</th>
+                        <th style={{ padding: '10px 8px' }}>Écurie</th>
+                        <th style={{ padding: '10px 8px' }}>Temps</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'center' }}>Pts</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {resultats.map((r) => {
+                        const couleur = COULEURS_ECURIES[r.Constructor.constructorId] || '#666';
+                        const podium = ['#FFD700', '#C0C0C0', '#CD7F32'][parseInt(r.position) - 1];
+                        return (
+                          <tr key={r.position} style={{ borderBottom: '1px solid #1e1e1e' }}>
+                            <td
+                              style={{
+                                padding: '10px 8px',
+                                fontWeight: 'bold',
+                                color: podium || '#fff',
+                              }}
+                            >
+                              {r.positionText}
+                            </td>
+                            <td style={{ padding: '10px 8px' }}>
+                              {r.Driver.givenName} <strong>{r.Driver.familyName}</strong>
+                            </td>
+                            <td style={{ padding: '10px 8px' }}>
+                              <span
+                                style={{
+                                  display: 'inline-block',
+                                  width: '3px',
+                                  height: '14px',
+                                  background: couleur,
+                                  marginRight: '8px',
+                                  verticalAlign: 'middle',
+                                  borderRadius: '2px',
+                                }}
+                              />
+                              <span style={{ color: '#bbb' }}>{r.Constructor.name}</span>
+                            </td>
+                            <td style={{ padding: '10px 8px', color: '#aaa', whiteSpace: 'nowrap' }}>
+                              {r.Time?.time || r.status}
+                            </td>
+                            <td
+                              style={{
+                                padding: '10px 8px',
+                                textAlign: 'center',
+                                fontWeight: r.points > 0 ? 'bold' : 'normal',
+                                color: r.points > 0 ? '#fff' : '#555',
+                              }}
+                            >
+                              {r.points}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
-      {/* FOOTER */}
-      <footer style={{ padding: "30px 40px", borderTop: "1px solid rgba(255,255,255,0.1)", textAlign: "center", color: "#666", fontSize: "14px" }}>
-        © 2026 Carstocars • Données fournies par l'API Jolpica
-      </footer>
+        {!gpSelectionne && courses.length > 0 && (
+          <div
+            style={{
+              textAlign: 'center',
+              padding: '40px 20px',
+              color: '#555',
+              border: '1px dashed #222',
+              borderRadius: '12px',
+            }}
+          >
+            👆 Sélectionne un Grand Prix sur la carte
+          </div>
+        )}
+
+      </div>
     </div>
   );
 }
