@@ -4,13 +4,32 @@ import dynamic from 'next/dynamic';
 const CarteMonde = dynamic(() => import('../components/CarteMonde'), {
   ssr: false,
   loading: () => (
-    <div style={{ height: '500px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888' }}>
+    <div style={{ height: '550px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888' }}>
       Chargement de la carte...
     </div>
   ),
 });
 
-// Nom du fichier SVG sur Wikimedia Commons pour chaque circuit
+const DRAPEAUX = {
+  Bahrain: "🇧🇭", "Saudi Arabia": "🇸🇦", Australia: "🇦🇺", Japan: "🇯🇵",
+  China: "🇨🇳", USA: "🇺🇸", "United States": "🇺🇸", Italy: "🇮🇹",
+  Monaco: "🇲🇨", Canada: "🇨🇦", Spain: "🇪🇸", Austria: "🇦🇹",
+  UK: "🇬🇧", "United Kingdom": "🇬🇧", Hungary: "🇭🇺", Belgium: "🇧🇪",
+  Netherlands: "🇳🇱", Azerbaijan: "🇦🇿", Singapore: "🇸🇬", Mexico: "🇲🇽",
+  Brazil: "🇧🇷", Qatar: "🇶🇦", UAE: "🇦🇪", France: "🇫🇷",
+  Russia: "🇷🇺", Turkey: "🇹🇷", Germany: "🇩🇪", Portugal: "🇵🇹",
+  Malaysia: "🇲🇾", India: "🇮🇳", Korea: "🇰🇷", "South Korea": "🇰🇷",
+};
+
+const COULEURS_ECURIES = {
+  red_bull: "#3671C6", ferrari: "#E8002D", mercedes: "#27F4D2",
+  mclaren: "#FF8000", aston_martin: "#229971", alpine: "#0093CC",
+  williams: "#64C4FF", rb: "#6692FF", alphatauri: "#5E8FAA",
+  sauber: "#52E252", alfa: "#C92D4B", haas: "#B6BABD",
+  racing_point: "#F596C8", renault: "#FFF500", toro_rosso: "#469BFF",
+  force_india: "#F596C8", lotus_f1: "#FFB800", manor: "#6E0000",
+};
+
 const FICHIERS_TRACES = {
   bahrain: 'Bahrain_International_Circuit--Grand_Prix_Layout.svg',
   jeddah: 'Jeddah_Street_Circuit_2021.svg',
@@ -39,74 +58,73 @@ const FICHIERS_TRACES = {
   ricard: 'Circuit_Paul_Ricard_2018.svg',
   sochi: 'Sochi_Autodrom_2014.svg',
   istanbul: 'Istanbul_park.svg',
+  hockenheimring: 'Hockenheimring_2002.svg',
+  portimao: 'Algarve_International_Circuit.svg',
+  sepang: 'Sepang_International_Circuit.svg',
   nurburgring: 'Nurburgring_-_Grand-Prix-Strecke.svg',
   mugello: 'Mugello_Racing_Circuit_track_map.svg',
-  portimao: 'Algarve_International_Circuit.svg',
-  hockenheimring: 'Hockenheim.svg',
-  sepang: 'Sepang_International_Circuit.svg',
-  buddh: 'Buddh_International_Circuit.svg',
+  buddh: 'Buddh_International_Circuit--2011.svg',
   yeongam: 'Korean_International_Circuit.svg',
-  valencia: 'Valencia_Street_Circuit_2008.svg',
-};
-
-const COULEURS_ECURIES = {
-  ferrari: '#DC0000',
-  mercedes: '#00D2BE',
-  red_bull: '#0600EF',
-  mclaren: '#FF8700',
-  alpine: '#0090FF',
-  aston_martin: '#006F62',
-  williams: '#005AFF',
-  rb: '#6692FF',
-  sauber: '#52E252',
-  haas: '#B6BABD',
-  alphatauri: '#2B4562',
-  alfa: '#900000',
-  renault: '#FFF500',
-  racing_point: '#F596C8',
-  toro_rosso: '#469BFF',
-  force_india: '#F596C8',
-  lotus_f1: '#FFB800',
-  manor: '#323232',
 };
 
 export default function Courses() {
-  const [saison, setSaison] = useState('2025');
+  const [saison, setSaison] = useState(2025);
   const [courses, setCourses] = useState([]);
   const [gpSelectionne, setGpSelectionne] = useState(null);
   const [resultats, setResultats] = useState([]);
-  const [chargement, setChargement] = useState(false);
   const [urlTrace, setUrlTrace] = useState(null);
+  const [chargement, setChargement] = useState(true);
+  const [chargementResultats, setChargementResultats] = useState(false);
 
-  const saisons = [];
-  for (let a = 2025; a >= 2015; a--) saisons.push(String(a));
-
-  // Charger le calendrier de la saison
+  // Charge le calendrier de la saison
   useEffect(() => {
-    setCourses([]);
+    setChargement(true);
     setGpSelectionne(null);
     setResultats([]);
-    setUrlTrace(null);
 
     fetch(`https://api.jolpi.ca/ergast/f1/${saison}/races/?format=json&limit=100`)
       .then((r) => r.json())
       .then((d) => {
         setCourses(d?.MRData?.RaceTable?.Races || []);
+        setChargement(false);
       })
-      .catch(() => setCourses([]));
+      .catch(() => {
+        setCourses([]);
+        setChargement(false);
+      });
   }, [saison]);
 
-  // Récupérer l'URL réelle du tracé via l'API Wikimedia
+  // Charge les résultats du GP sélectionné
   useEffect(() => {
-    if (!gpSelectionne) return;
-
-    const fichier = FICHIERS_TRACES[gpSelectionne.Circuit.circuitId];
-    if (!fichier) {
-      setUrlTrace(null);
+    if (!gpSelectionne?.round) {
+      setResultats([]);
       return;
     }
 
+    setChargementResultats(true);
+
+    fetch(`https://api.jolpi.ca/ergast/f1/${saison}/${gpSelectionne.round}/results/?format=json&limit=100`)
+      .then((r) => r.json())
+      .then((d) => {
+        const race = d?.MRData?.RaceTable?.Races?.[0];
+        setResultats(race?.Results || []);
+        setChargementResultats(false);
+      })
+      .catch(() => {
+        setResultats([]);
+        setChargementResultats(false);
+      });
+  }, [gpSelectionne, saison]);
+
+  // Récupère le tracé du circuit via Wikimedia Commons
+  useEffect(() => {
+    const circuitId = gpSelectionne?.Circuit?.circuitId;
     setUrlTrace(null);
+
+    if (!circuitId) return;
+
+    const fichier = FICHIERS_TRACES[circuitId];
+    if (!fichier) return;
 
     fetch(
       `https://commons.wikimedia.org/w/api.php?action=query&titles=File:${encodeURIComponent(
@@ -117,132 +135,150 @@ export default function Courses() {
       .then((d) => {
         const pages = d?.query?.pages || {};
         const premiere = Object.values(pages)[0];
-        const url = premiere?.imageinfo?.[0]?.thumburl || null;
-        setUrlTrace(url);
+        setUrlTrace(premiere?.imageinfo?.[0]?.thumburl || null);
       })
       .catch(() => setUrlTrace(null));
   }, [gpSelectionne]);
 
-  // Charger les résultats d'un GP
-  const chargerResultats = (course) => {
-    setGpSelectionne(course);
-    setResultats([]);
-    setChargement(true);
+  const annees = [];
+  for (let a = 2025; a >= 2015; a--) annees.push(a);
 
-    fetch(
-      `https://api.jolpi.ca/ergast/f1/${saison}/${course.round}/results/?format=json&limit=100`
-    )
-      .then((r) => r.json())
-      .then((d) => {
-        setResultats(d?.MRData?.RaceTable?.Races?.[0]?.Results || []);
-        setChargement(false);
-      })
-      .catch(() => setChargement(false));
-  };
+  const loc = gpSelectionne?.Circuit?.Location;
 
   return (
-    <div style={{ background: '#0a0a0a', minHeight: '100vh', padding: '30px 20px', color: '#fff' }}>
+    <div style={{ background: '#0a0a0a', minHeight: '100vh', color: '#fff', padding: '40px 20px' }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
 
-        <h1 style={{ fontSize: '2rem', marginBottom: '10px' }}>
-          🏁 Grands Prix de Formule 1
+        {/* En-tête */}
+        <h1 style={{ fontSize: '2.2rem', margin: '0 0 8px', fontWeight: 800 }}>
+          🏁 Grands Prix
         </h1>
-        <p style={{ color: '#888', marginBottom: '25px' }}>
+        <p style={{ color: '#888', margin: '0 0 24px' }}>
           Clique sur un point de la carte pour voir les résultats de la course.
         </p>
 
         {/* Sélecteur de saison */}
-        <div style={{ marginBottom: '25px' }}>
-          <label style={{ marginRight: '10px', color: '#aaa' }}>Saison :</label>
-          <select
-            value={saison}
-            onChange={(e) => setSaison(e.target.value)}
-            style={{
-              background: '#1a1a1a',
-              color: '#fff',
-              border: '1px solid #333',
-              borderRadius: '6px',
-              padding: '8px 14px',
-              fontSize: '1rem',
-              cursor: 'pointer',
-            }}
-          >
-            {saisons.map((a) => (
-              <option key={a} value={a}>{a}</option>
-            ))}
-          </select>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '24px' }}>
+          {annees.map((a) => (
+            <button
+              key={a}
+              onClick={() => setSaison(a)}
+              style={{
+                padding: '8px 16px',
+                borderRadius: '8px',
+                border: '1px solid ' + (saison === a ? '#e10600' : '#2a2a2a'),
+                background: saison === a ? '#e10600' : 'transparent',
+                color: saison === a ? '#fff' : '#999',
+                cursor: 'pointer',
+                fontWeight: saison === a ? 700 : 500,
+                fontSize: '0.9rem',
+                transition: 'all 0.15s',
+              }}
+            >
+              {a}
+            </button>
+          ))}
         </div>
 
         {/* Carte */}
-        <div
-          style={{
-            border: '1px solid #222',
-            borderRadius: '12px',
-            overflow: 'hidden',
-            marginBottom: '10px',
-          }}
-        >
-          <CarteMonde courses={courses} onSelect={chargerResultats} />
-        </div>
-
-        {courses.length > 0 && (
-          <p style={{ color: '#666', fontSize: '0.85rem', marginBottom: '30px' }}>
-            {courses.length} Grands Prix en {saison}
-          </p>
+        {chargement ? (
+          <div style={{ height: '550px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888' }}>
+            Chargement du calendrier {saison}...
+          </div>
+        ) : (
+          <CarteMonde
+            courses={courses}
+            gpSelect={gpSelectionne ? `${saison}-${gpSelectionne.round}` : null}
+            saison={saison}
+            onSelect={setGpSelectionne}
+            drapeaux={DRAPEAUX}
+          />
         )}
 
-        {/* Résultats + tracé */}
+        {/* Message d'invitation */}
+        {!gpSelectionne && !chargement && courses.length > 0 && (
+          <div
+            style={{
+              textAlign: 'center',
+              padding: '40px 20px',
+              marginTop: '24px',
+              color: '#555',
+              border: '1px dashed #222',
+              borderRadius: '12px',
+            }}
+          >
+            👆 Sélectionne un Grand Prix sur la carte
+          </div>
+        )}
+
+        {/* Détails du GP sélectionné */}
         {gpSelectionne && (
           <div
             style={{
+              marginTop: '32px',
               display: 'flex',
-              gap: '30px',
+              gap: '32px',
               flexWrap: 'wrap',
-              background: '#111',
-              border: '1px solid #222',
-              borderRadius: '12px',
-              padding: '25px',
+              alignItems: 'flex-start',
             }}
           >
             {/* Colonne gauche : infos + tracé */}
             <div style={{ flex: '0 0 300px', minWidth: '260px' }}>
-              <h2 style={{ fontSize: '1.3rem', margin: '0 0 8px' }}>
-                {gpSelectionne.raceName}
+              <h2 style={{ fontSize: '1.4rem', margin: '0 0 8px', fontWeight: 700 }}>
+                {DRAPEAUX[loc?.country] || '🏁'} {gpSelectionne?.raceName || 'Grand Prix'}
               </h2>
               <p style={{ color: '#888', fontSize: '0.9rem', margin: '0 0 6px' }}>
-                {gpSelectionne.Circuit.circuitName}
+                {gpSelectionne?.Circuit?.circuitName || ''}
               </p>
-              <p style={{ color: '#666', fontSize: '0.85rem', margin: '0 0 18px' }}>
-                📍 {gpSelectionne.Circuit.Location.locality}, {gpSelectionne.Circuit.Location.country}
-                <br />
-                📅 {new Date(gpSelectionne.date).toLocaleDateString('fr-FR', {
-                  day: 'numeric', month: 'long', year: 'numeric',
-                })}
-                <br />
-                🔢 Manche {gpSelectionne.round}
+              <p style={{ color: '#666', fontSize: '0.85rem', margin: '0 0 18px', lineHeight: 1.7 }}>
+                {loc && (
+                  <>
+                    📍 {loc.locality}, {loc.country}
+                    <br />
+                  </>
+                )}
+                {gpSelectionne?.date && (
+                  <>
+                    📅{' '}
+                    {new Date(gpSelectionne.date).toLocaleDateString('fr-FR', {
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric',
+                    })}
+                    <br />
+                  </>
+                )}
+                {gpSelectionne?.round && <>🔢 Manche {gpSelectionne.round}</>}
               </p>
 
               {urlTrace ? (
-                <img
-                  src={urlTrace}
-                  alt={`Tracé du ${gpSelectionne.Circuit.circuitName}`}
+                <div
                   style={{
-                    width: '100%',
-                    background: '#fff',
-                    borderRadius: '8px',
-                    padding: '12px',
-                    boxSizing: 'border-box',
+                    background: '#111',
+                    borderRadius: '12px',
+                    padding: '16px',
+                    border: '1px solid #1e1e1e',
                   }}
-                />
+                >
+                  <img
+                    src={urlTrace}
+                    alt={`Tracé de ${gpSelectionne?.Circuit?.circuitName || 'circuit'}`}
+                    style={{
+                      width: '100%',
+                      height: 'auto',
+                      filter: 'invert(1) brightness(1.1)',
+                    }}
+                  />
+                </div>
               ) : (
                 <div
                   style={{
-                    background: '#1a1a1a',
-                    border: '1px dashed #333',
-                    borderRadius: '8px',
-                    padding: '30px 15px',
+                    background: '#111',
+                    borderRadius: '12px',
+                    padding: '30px 16px',
+                    border: '1px dashed #222',
                     textAlign: 'center',
-                    color: '#555',
+                    color: '#444',
                     fontSize: '0.85rem',
                   }}
                 >
@@ -252,44 +288,53 @@ export default function Courses() {
             </div>
 
             {/* Colonne droite : résultats */}
-            <div style={{ flex: '1 1 420px', minWidth: '300px' }}>
-              {chargement ? (
-                <p style={{ color: '#888' }}>Chargement des résultats...</p>
+            <div style={{ flex: 1, minWidth: '320px' }}>
+              <h3 style={{ fontSize: '1.1rem', margin: '0 0 16px', color: '#aaa', fontWeight: 600 }}>
+                Résultats de la course
+              </h3>
+
+              {chargementResultats ? (
+                <div style={{ padding: '40px', textAlign: 'center', color: '#666' }}>
+                  Chargement des résultats...
+                </div>
               ) : resultats.length === 0 ? (
-                <p style={{ color: '#888' }}>
-                  Pas encore de résultats pour ce Grand Prix.
-                </p>
+                <div
+                  style={{
+                    padding: '40px',
+                    textAlign: 'center',
+                    color: '#555',
+                    border: '1px dashed #222',
+                    borderRadius: '12px',
+                  }}
+                >
+                  Aucun résultat disponible pour cette course.
+                </div>
               ) : (
                 <div style={{ overflowX: 'auto' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
                     <thead>
-                      <tr style={{ borderBottom: '2px solid #333', color: '#888', textAlign: 'left' }}>
-                        <th style={{ padding: '10px 8px' }}>Pos</th>
-                        <th style={{ padding: '10px 8px' }}>Pilote</th>
-                        <th style={{ padding: '10px 8px' }}>Écurie</th>
-                        <th style={{ padding: '10px 8px' }}>Temps</th>
+                      <tr style={{ borderBottom: '2px solid #222', color: '#666', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        <th style={{ padding: '10px 8px', textAlign: 'left' }}>Pos</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'left' }}>Pilote</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'left' }}>Écurie</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'left' }}>Temps</th>
                         <th style={{ padding: '10px 8px', textAlign: 'center' }}>Pts</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {resultats.map((r) => {
-                        const couleur = COULEURS_ECURIES[r.Constructor.constructorId] || '#666';
-                        const podium = ['#FFD700', '#C0C0C0', '#CD7F32'][parseInt(r.position) - 1];
+                      {resultats.map((r, i) => {
+                        const couleur = COULEURS_ECURIES[r?.Constructor?.constructorId] || '#666';
+                        const podium = ['#FFD700', '#C0C0C0', '#CD7F32'][parseInt(r?.position) - 1];
                         return (
-                          <tr key={r.position} style={{ borderBottom: '1px solid #1e1e1e' }}>
-                            <td
-                              style={{
-                                padding: '10px 8px',
-                                fontWeight: 'bold',
-                                color: podium || '#fff',
-                              }}
-                            >
-                              {r.positionText}
+                          <tr key={r?.position || i} style={{ borderBottom: '1px solid #1a1a1a' }}>
+                            <td style={{ padding: '11px 8px', fontWeight: 'bold', color: podium || '#fff' }}>
+                              {r?.positionText || '-'}
                             </td>
-                            <td style={{ padding: '10px 8px' }}>
-                              {r.Driver.givenName} <strong>{r.Driver.familyName}</strong>
+                            <td style={{ padding: '11px 8px' }}>
+                              <span style={{ color: '#888' }}>{r?.Driver?.givenName}</span>{' '}
+                              <strong>{r?.Driver?.familyName}</strong>
                             </td>
-                            <td style={{ padding: '10px 8px' }}>
+                            <td style={{ padding: '11px 8px' }}>
                               <span
                                 style={{
                                   display: 'inline-block',
@@ -301,20 +346,20 @@ export default function Courses() {
                                   borderRadius: '2px',
                                 }}
                               />
-                              <span style={{ color: '#bbb' }}>{r.Constructor.name}</span>
+                              <span style={{ color: '#bbb' }}>{r?.Constructor?.name || '—'}</span>
                             </td>
-                            <td style={{ padding: '10px 8px', color: '#aaa', whiteSpace: 'nowrap' }}>
-                              {r.Time?.time || r.status}
+                            <td style={{ padding: '11px 8px', color: '#aaa', whiteSpace: 'nowrap' }}>
+                              {r?.Time?.time || r?.status || '—'}
                             </td>
                             <td
                               style={{
-                                padding: '10px 8px',
+                                padding: '11px 8px',
                                 textAlign: 'center',
-                                fontWeight: r.points > 0 ? 'bold' : 'normal',
-                                color: r.points > 0 ? '#fff' : '#555',
+                                fontWeight: Number(r?.points) > 0 ? 'bold' : 'normal',
+                                color: Number(r?.points) > 0 ? '#fff' : '#555',
                               }}
                             >
-                              {r.points}
+                              {r?.points ?? '0'}
                             </td>
                           </tr>
                         );
@@ -324,20 +369,6 @@ export default function Courses() {
                 </div>
               )}
             </div>
-          </div>
-        )}
-
-        {!gpSelectionne && courses.length > 0 && (
-          <div
-            style={{
-              textAlign: 'center',
-              padding: '40px 20px',
-              color: '#555',
-              border: '1px dashed #222',
-              borderRadius: '12px',
-            }}
-          >
-            👆 Sélectionne un Grand Prix sur la carte
           </div>
         )}
 
