@@ -10,10 +10,10 @@ const drapeaux = {
   Russia: "🇷🇺", Turkey: "🇹🇷", Malaysia: "🇲🇾",
 };
 
-// Conversion lat/long → position sur la carte
+// Projection équirectangulaire standard (-180/+180, -90/+90)
 const projection = (lat, long) => ({
   x: ((parseFloat(long) + 180) / 360) * 100,
-  y: ((84 - parseFloat(lat)) / 140) * 100,
+  y: ((90 - parseFloat(lat)) / 180) * 100,
 });
 
 export default function Courses() {
@@ -32,7 +32,7 @@ export default function Courses() {
     setChargement(true);
     setGpSelect(null);
     setResultats({});
-    fetch(`https://api.jolpi.ca/ergast/f1/${saison}/races/?format=json&limit=30`)
+    fetch(`https://api.jolpi.ca/ergast/f1/${saison}/races/?format=json`)
       .then((r) => r.json())
       .then((data) => {
         setCourses(data?.MRData?.RaceTable?.Races || []);
@@ -41,85 +41,72 @@ export default function Courses() {
       .catch(() => setChargement(false));
   }, [saison]);
 
-  const choisirGp = (course) => {
-    const round = course.round;
-    if (gpSelect?.round === round) {
+  const chargerResultat = (course) => {
+    const cle = `${saison}-${course.round}`;
+    if (gpSelect === cle) {
       setGpSelect(null);
       return;
     }
-    setGpSelect(course);
-    if (resultats[round]) return;
-
+    setGpSelect(cle);
+    if (resultats[cle]) return;
     setChargementGp(true);
-    fetch(`https://api.jolpi.ca/ergast/f1/${saison}/${round}/results/?format=json&limit=30`)
+    fetch(`https://api.jolpi.ca/ergast/f1/${saison}/${course.round}/results/?format=json`)
       .then((r) => r.json())
       .then((data) => {
         const res = data?.MRData?.RaceTable?.Races?.[0]?.Results || [];
-        setResultats((prev) => ({ ...prev, [round]: res }));
+        setResultats((prev) => ({ ...prev, [cle]: res }));
         setChargementGp(false);
       })
       .catch(() => setChargementGp(false));
   };
 
   const aujourdhui = new Date();
+  const courseSelectionnee = courses.find(
+    (c) => `${saison}-${c.round}` === gpSelect
+  );
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0a0a0a", color: "#fff", fontFamily: "'Rajdhani', sans-serif" }}>
-      <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet" />
-
-      <style>{`
-        @keyframes pulse {
-          0%, 100% { transform: scale(1); opacity: 1; }
-          50% { transform: scale(1.6); opacity: 0.5; }
-        }
-        .point-gp {
-          cursor: pointer;
-          transition: all 0.2s;
-        }
-        .point-gp:hover {
-          transform: scale(1.8);
-        }
-      `}</style>
-
+    <div style={{ minHeight: "100vh", background: "#0a0a0a", color: "#fff", fontFamily: "system-ui, -apple-system, sans-serif" }}>
+      
       {/* HEADER */}
-      <header style={{ padding: "20px 40px", borderBottom: "1px solid rgba(255,255,255,0.1)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "15px" }}>
-        <a href="/" style={{ fontFamily: "'Orbitron', sans-serif", fontSize: "26px", fontWeight: "900", color: "#fff", textDecoration: "none" }}>
-          CARSTO<span style={{ color: "#00d4ff" }}>CARS</span>
+      <header style={{ padding: "20px 40px", borderBottom: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", gap: "30px" }}>
+        <a href="/" style={{ color: "#fff", textDecoration: "none", fontSize: "22px", fontWeight: "700", letterSpacing: "-0.5px" }}>
+          Carstocars
         </a>
-        <nav style={{ display: "flex", gap: "20px" }}>
-          <a href="/" style={{ color: "#aaa", textDecoration: "none" }}>Accueil</a>
-          <a href="/sport" style={{ color: "#aaa", textDecoration: "none" }}>Sport</a>
-          <a href="/classement" style={{ color: "#aaa", textDecoration: "none" }}>Classement</a>
-          <a href="/courses" style={{ color: "#00d4ff", textDecoration: "none", fontWeight: "700" }}>Courses</a>
+        <nav style={{ display: "flex", gap: "24px" }}>
+          <a href="/auto" style={{ color: "#888", textDecoration: "none", fontSize: "15px" }}>Auto</a>
+          <a href="/sport" style={{ color: "#888", textDecoration: "none", fontSize: "15px" }}>Sport</a>
+          <a href="/classement" style={{ color: "#888", textDecoration: "none", fontSize: "15px" }}>Classement</a>
+          <a href="/courses" style={{ color: "#00d4ff", textDecoration: "none", fontSize: "15px", fontWeight: "600" }}>Courses</a>
         </nav>
       </header>
 
       {/* TITRE */}
-      <section style={{ padding: "40px 40px 20px", textAlign: "center" }}>
-        <h1 style={{ fontFamily: "'Orbitron', sans-serif", fontSize: "36px", margin: "0 0 10px", letterSpacing: "2px" }}>
-          CARTE DES <span style={{ color: "#00d4ff" }}>GRANDS PRIX</span>
+      <section style={{ padding: "50px 40px 30px", textAlign: "center" }}>
+        <h1 style={{ fontSize: "42px", fontWeight: "800", margin: "0 0 12px", letterSpacing: "-1px" }}>
+          Calendrier & Résultats F1
         </h1>
         <p style={{ color: "#888", fontSize: "17px", margin: 0 }}>
-          Clique sur un circuit pour voir les résultats
+          Clique sur un point de la carte pour voir les résultats du Grand Prix
         </p>
       </section>
 
-      {/* SÉLECTEUR SAISON */}
-      <section style={{ padding: "0 40px 30px", display: "flex", gap: "8px", flexWrap: "wrap", justifyContent: "center" }}>
+      {/* SÉLECTEUR DE SAISON */}
+      <section style={{ padding: "0 40px 30px", display: "flex", justifyContent: "center", gap: "10px", flexWrap: "wrap" }}>
         {saisons.map((a) => (
           <button
             key={a}
             onClick={() => setSaison(a)}
             style={{
-              padding: "8px 16px",
-              background: saison === a ? "#00d4ff" : "rgba(255,255,255,0.05)",
-              color: saison === a ? "#000" : "#aaa",
-              border: saison === a ? "none" : "1px solid rgba(255,255,255,0.15)",
-              borderRadius: "20px",
-              fontFamily: "'Rajdhani', sans-serif",
+              padding: "10px 20px",
+              borderRadius: "10px",
+              border: saison === a ? "1px solid #00d4ff" : "1px solid rgba(255,255,255,0.15)",
+              background: saison === a ? "rgba(0,212,255,0.15)" : "transparent",
+              color: saison === a ? "#00d4ff" : "#aaa",
               fontSize: "15px",
-              fontWeight: "700",
+              fontWeight: saison === a ? "700" : "500",
               cursor: "pointer",
+              transition: "all 0.2s",
             }}
           >
             {a}
@@ -128,172 +115,235 @@ export default function Courses() {
       </section>
 
       {chargement ? (
-        <p style={{ textAlign: "center", color: "#888", padding: "60px" }}>Chargement du calendrier {saison}...</p>
+        <div style={{ textAlign: "center", padding: "80px", color: "#666", fontSize: "17px" }}>
+          Chargement du calendrier…
+        </div>
+      ) : courses.length === 0 ? (
+        <div style={{ textAlign: "center", padding: "80px", color: "#666", fontSize: "17px" }}>
+          Aucune course disponible pour cette saison.
+        </div>
       ) : (
         <>
           {/* CARTE DU MONDE */}
-          <section style={{ padding: "0 20px 40px", maxWidth: "1300px", margin: "0 auto" }}>
-            <div style={{
-              position: "relative",
-              width: "100%",
-              paddingBottom: "50%",
-              background: "rgba(255,255,255,0.02)",
-              border: "1px solid rgba(255,255,255,0.1)",
-              borderRadius: "12px",
-              overflow: "hidden",
-            }}>
+          <section style={{ padding: "0 40px 40px" }}>
+            <div
+              style={{
+                maxWidth: "1200px",
+                margin: "0 auto",
+                position: "relative",
+                width: "100%",
+                aspectRatio: "2 / 1",
+                background: "#0d1b2a",
+                borderRadius: "16px",
+                overflow: "hidden",
+                border: "1px solid rgba(255,255,255,0.1)",
+              }}
+            >
               {/* Fond planisphère */}
               <img
-                src="https://upload.wikimedia.org/wikipedia/commons/e/ec/World_map_blank_without_borders.svg"
+                src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/World_map_-_low_resolution.svg/2000px-World_map_-_low_resolution.svg.png"
                 alt="Carte du monde"
                 style={{
                   position: "absolute",
-                  top: 0, left: 0,
-                  width: "100%", height: "100%",
+                  top: 0,
+                  left: 0,
+                  width: "100%",
+                  height: "100%",
                   objectFit: "fill",
-                  opacity: 0.9,
                 }}
               />
 
-              {/* Points des circuits */}
+              {/* Points des Grands Prix */}
               {courses.map((c) => {
-                const pos = projection(c.Circuit.Location.lat, c.Circuit.Location.long);
+                const lat = c.Circuit?.Location?.lat;
+                const long = c.Circuit?.Location?.long;
+                if (!lat || !long) return null;
+
+                const pos = projection(lat, long);
+                const cle = `${saison}-${c.round}`;
                 const passee = new Date(c.date) < aujourdhui;
-                const actif = gpSelect?.round === c.round;
+                const actif = gpSelect === cle;
+
                 return (
                   <div
-                    key={c.round}
-                    className="point-gp"
-                    onClick={() => choisirGp(c)}
-                    onMouseEnter={() => setSurvol(c.round)}
+                    key={cle}
+                    onClick={() => chargerResultat(c)}
+                    onMouseEnter={() => setSurvol(cle)}
                     onMouseLeave={() => setSurvol(null)}
                     style={{
                       position: "absolute",
                       left: `${pos.x}%`,
                       top: `${pos.y}%`,
                       transform: "translate(-50%, -50%)",
-                      width: actif ? "18px" : "13px",
-                      height: actif ? "18px" : "13px",
-                      borderRadius: "50%",
-                      background: actif ? "#fff" : passee ? "#00d4ff" : "#666",
-                      border: actif ? "3px solid #00d4ff" : "2px solid rgba(0,0,0,0.5)",
-                      boxShadow: actif ? "0 0 20px #00d4ff" : passee ? "0 0 10px rgba(0,212,255,0.6)" : "none",
-                      animation: passee && !actif ? "pulse 2.5s infinite" : "none",
-                      zIndex: actif ? 10 : 5,
+                      cursor: "pointer",
+                      zIndex: actif || survol === cle ? 20 : 10,
                     }}
-                  />
-                );
-              })}
+                  >
+                    {/* Halo pulsant */}
+                    {passee && (
+                      <span
+                        style={{
+                          position: "absolute",
+                          top: "50%",
+                          left: "50%",
+                          transform: "translate(-50%, -50%)",
+                          width: "22px",
+                          height: "22px",
+                          borderRadius: "50%",
+                          background: "rgba(0,212,255,0.35)",
+                          animation: "pulse 2s infinite",
+                        }}
+                      />
+                    )}
 
-              {/* Infobulle au survol */}
-              {survol && (() => {
-                const c = courses.find((x) => x.round === survol);
-                if (!c) return null;
-                const pos = projection(c.Circuit.Location.lat, c.Circuit.Location.long);
-                return (
-                  <div style={{
-                    position: "absolute",
-                    left: `${pos.x}%`,
-                    top: `${pos.y}%`,
-                    transform: pos.y > 60 ? "translate(-50%, -140%)" : "translate(-50%, 40%)",
-                    background: "rgba(0,0,0,0.95)",
-                    border: "1px solid #00d4ff",
-                    borderRadius: "8px",
-                    padding: "8px 14px",
-                    whiteSpace: "nowrap",
-                    pointerEvents: "none",
-                    zIndex: 20,
-                  }}>
-                    <div style={{ fontWeight: "700", fontSize: "14px" }}>
-                      {drapeaux[c.Circuit.Location.country] || "🏁"} {c.raceName}
-                    </div>
-                    <div style={{ color: "#888", fontSize: "12px" }}>
-                      Manche {c.round} • {new Date(c.date).toLocaleDateString("fr-FR")}
-                    </div>
+                    {/* Point */}
+                    <span
+                      style={{
+                        display: "block",
+                        position: "relative",
+                        width: actif ? "16px" : "11px",
+                        height: actif ? "16px" : "11px",
+                        borderRadius: "50%",
+                        background: actif ? "#fff" : passee ? "#00d4ff" : "#888",
+                        border: actif ? "3px solid #00d4ff" : "2px solid rgba(255,255,255,0.9)",
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.6)",
+                        transition: "all 0.2s",
+                      }}
+                    />
+
+                    {/* Infobulle */}
+                    {survol === cle && (
+                      <div
+                        style={{
+                          position: "absolute",
+                          bottom: "24px",
+                          left: "50%",
+                          transform: "translateX(-50%)",
+                          background: "rgba(10,10,10,0.96)",
+                          border: "1px solid rgba(0,212,255,0.5)",
+                          borderRadius: "8px",
+                          padding: "8px 12px",
+                          whiteSpace: "nowrap",
+                          fontSize: "13px",
+                          pointerEvents: "none",
+                          boxShadow: "0 4px 20px rgba(0,0,0,0.8)",
+                        }}
+                      >
+                        <div style={{ fontWeight: "700", marginBottom: "2px" }}>
+                          {drapeaux[c.Circuit?.Location?.country] || "🏁"} {c.raceName}
+                        </div>
+                        <div style={{ color: "#888", fontSize: "12px" }}>
+                          {new Date(c.date).toLocaleDateString("fr-FR", { day: "numeric", month: "long" })}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 );
-              })()}
+              })}
             </div>
 
             {/* Légende */}
-            <div style={{ display: "flex", gap: "25px", justifyContent: "center", marginTop: "18px", flexWrap: "wrap", fontSize: "14px", color: "#888" }}>
-              <span><span style={{ display: "inline-block", width: "11px", height: "11px", borderRadius: "50%", background: "#00d4ff", marginRight: "7px" }} />Course disputée</span>
-              <span><span style={{ display: "inline-block", width: "11px", height: "11px", borderRadius: "50%", background: "#666", marginRight: "7px" }} />À venir</span>
-              <span>{courses.length} Grands Prix en {saison}</span>
+            <div style={{ maxWidth: "1200px", margin: "16px auto 0", display: "flex", justifyContent: "center", gap: "28px", flexWrap: "wrap", fontSize: "14px", color: "#888" }}>
+              <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <span style={{ width: "11px", height: "11px", borderRadius: "50%", background: "#00d4ff", border: "2px solid #fff", display: "inline-block" }} />
+                Course disputée
+              </span>
+              <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <span style={{ width: "11px", height: "11px", borderRadius: "50%", background: "#888", border: "2px solid #fff", display: "inline-block" }} />
+                À venir
+              </span>
             </div>
           </section>
 
-          {/* RÉSULTATS DU GP SÉLECTIONNÉ */}
-          {gpSelect && (
-            <section style={{ padding: "0 40px 60px", maxWidth: "1000px", margin: "0 auto" }}>
-              <div style={{               background: "#0d1b2a", border: "1px solid rgba(0,212,255,0.3)", borderRadius: "12px", overflow: "hidden" }}>
-                {/* En-tête du GP */}
-                <div style={{ padding: "22px 25px", borderBottom: "1px solid rgba(255,255,255,0.1)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px" }}>
+          {/* RÉSULTATS */}
+          {gpSelect && courseSelectionnee && (
+            <section style={{ padding: "0 40px 60px" }}>
+              <div
+                style={{
+                  maxWidth: "1000px",
+                  margin: "0 auto",
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1px solid rgba(0,212,255,0.3)",
+                  borderRadius: "16px",
+                  overflow: "hidden",
+                }}
+              >
+                {/* En-tête */}
+                <div style={{ padding: "24px 28px", borderBottom: "1px solid rgba(255,255,255,0.1)", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "20px", flexWrap: "wrap" }}>
                   <div>
-                    <div style={{ fontSize: "13px", color: "#00d4ff", fontWeight: "700", letterSpacing: "1px" }}>
-                      MANCHE {gpSelect.round} • {saison}
-                    </div>
-                    <h2 style={{ fontFamily: "'Orbitron', sans-serif", fontSize: "23px", margin: "6px 0 4px" }}>
-                      {drapeaux[gpSelect.Circuit.Location.country] || "🏁"} {gpSelect.raceName}
+                    <h2 style={{ margin: "0 0 6px", fontSize: "24px", fontWeight: "700" }}>
+                      {drapeaux[courseSelectionnee.Circuit?.Location?.country] || "🏁"} {courseSelectionnee.raceName}
                     </h2>
-                    <div style={{ color: "#888", fontSize: "14px" }}>
-                      {gpSelect.Circuit.circuitName} • {gpSelect.Circuit.Location.locality}
-                    </div>
+                    <p style={{ margin: 0, color: "#888", fontSize: "15px" }}>
+                      {courseSelectionnee.Circuit?.circuitName} • {courseSelectionnee.Circuit?.Location?.locality}
+                      {" • "}
+                      {new Date(courseSelectionnee.date).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}
+                    </p>
                   </div>
                   <button
                     onClick={() => setGpSelect(null)}
-                    style={{ padding: "8px 16px", background: "transparent", border: "1px solid rgba(255,255,255,0.2)", borderRadius: "6px", color: "#aaa", cursor: "pointer", fontFamily: "'Rajdhani', sans-serif", fontSize: "14px" }}
+                    style={{
+                      padding: "8px 16px",
+                      borderRadius: "8px",
+                      border: "1px solid rgba(255,255,255,0.2)",
+                      background: "transparent",
+                      color: "#aaa",
+                      fontSize: "14px",
+                      cursor: "pointer",
+                    }}
                   >
                     ✕ Fermer
                   </button>
                 </div>
 
-                {/* Tableau des résultats */}
-                <div style={{ padding: "20px 25px 25px" }}>
-                  {chargementGp ? (
-                    <p style={{ color: "#888", textAlign: "center", padding: "30px" }}>Chargement des résultats...</p>
-                  ) : !resultats[gpSelect.round] || resultats[gpSelect.round].length === 0 ? (
-                    <p style={{ color: "#888", textAlign: "center", padding: "30px" }}>
-                      ⏳ Course pas encore disputée — résultats indisponibles
-                    </p>
-                  ) : (
-                    <div style={{ overflowX: "auto" }}>
-                      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "15px" }}>
-                        <thead>
-                          <tr style={{ borderBottom: "2px solid rgba(0,212,255,0.3)", color: "#00d4ff", fontSize: "13px", letterSpacing: "1px" }}>
-                            <th style={{ padding: "10px 8px", textAlign: "left", width: "50px" }}>POS</th>
-                            <th style={{ padding: "10px 8px", textAlign: "left" }}>PILOTE</th>
-                            <th style={{ padding: "10px 8px", textAlign: "left" }}>ÉCURIE</th>
-                            <th style={{ padding: "10px 8px", textAlign: "left" }}>TEMPS / ÉCART</th>
-                            <th style={{ padding: "10px 8px", textAlign: "right", width: "60px" }}>PTS</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {resultats[gpSelect.round].map((r) => (
-                            <tr key={r.position} style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-                              <td style={{
-                                padding: "12px 8px",
-                                fontWeight: "900",
-                                fontFamily: "'Orbitron', sans-serif",
-                                color: r.position === "1" ? "#FFD700" : r.position === "2" ? "#C0C0C0" : r.position === "3" ? "#CD7F32" : "#fff",
-                              }}>
+                {/* Tableau */}
+                {chargementGp ? (
+                  <div style={{ padding: "50px", textAlign: "center", color: "#666" }}>
+                    Chargement des résultats…
+                  </div>
+                ) : !resultats[gpSelect] || resultats[gpSelect].length === 0 ? (
+                  <div style={{ padding: "50px", textAlign: "center", color: "#666" }}>
+                    Course pas encore disputée — résultats indisponibles.
+                  </div>
+                ) : (
+                  <div style={{ overflowX: "auto" }}>
+                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "15px" }}>
+                      <thead>
+                        <tr style={{ background: "rgba(255,255,255,0.04)" }}>
+                          <th style={{ padding: "14px 18px", textAlign: "left", color: "#888", fontWeight: "600", fontSize: "13px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Pos</th>
+                          <th style={{ padding: "14px 18px", textAlign: "left", color: "#888", fontWeight: "600", fontSize: "13px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Pilote</th>
+                          <th style={{ padding: "14px 18px", textAlign: "left", color: "#888", fontWeight: "600", fontSize: "13px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Écurie</th>
+                          <th style={{ padding: "14px 18px", textAlign: "left", color: "#888", fontWeight: "600", fontSize: "13px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Temps / Écart</th>
+                          <th style={{ padding: "14px 18px", textAlign: "right", color: "#888", fontWeight: "600", fontSize: "13px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Pts</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {resultats[gpSelect].map((r) => {
+                          const podium = parseInt(r.position) <= 3;
+                          return (
+                            <tr key={r.position} style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+                              <td style={{ padding: "14px 18px", fontWeight: "700", color: podium ? "#00d4ff" : "#fff", fontSize: "16px" }}>
                                 {r.position}
                               </td>
-                              <td style={{ padding: "12px 8px", fontWeight: "600" }}>
-                                {r.Driver.givenName} {r.Driver.familyName}
+                              <td style={{ padding: "14px 18px", fontWeight: "600" }}>
+                                {r.Driver?.givenName} {r.Driver?.familyName}
                               </td>
-                              <td style={{ padding: "12px 8px", color: "#aaa" }}>{r.Constructor.name}</td>
-                              <td style={{ padding: "12px 8px", color: "#00d4ff", fontFamily: "monospace", fontSize: "14px" }}>
-                                {r.Time ? r.Time.time : r.status}
+                              <td style={{ padding: "14px 18px", color: "#aaa" }}>
+                                {r.Constructor?.name}
                               </td>
-                              <td style={{ padding: "12px 8px", textAlign: "right", fontWeight: "700" }}>{r.points}</td>
+                              <td style={{ padding: "14px 18px", color: "#aaa", fontFamily: "monospace", fontSize: "14px" }}>
+                                {r.Time?.time || r.status}
+                              </td>
+                              <td style={{ padding: "14px 18px", textAlign: "right", fontWeight: "700", color: parseInt(r.points) > 0 ? "#00d4ff" : "#555" }}>
+                                {r.points}
+                              </td>
                             </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </div>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             </section>
           )}
@@ -304,6 +354,15 @@ export default function Courses() {
       <footer style={{ padding: "30px 40px", borderTop: "1px solid rgba(255,255,255,0.1)", textAlign: "center", color: "#666", fontSize: "14px" }}>
         © 2026 Carstocars • Données fournies par l'API Jolpica
       </footer>
+
+      {/* Animation */}
+      <style jsx global>{`
+        @keyframes pulse {
+          0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.8; }
+          70% { transform: translate(-50%, -50%) scale(2.2); opacity: 0; }
+          100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+        }
+      `}</style>
     </div>
   );
 }
