@@ -80,6 +80,7 @@ export default function Courses() {
 
   const loc = gpSelectionne?.Circuit?.Location;
   const drapeauGp = loc?.country ? (DRAPEAUX[loc.country] || "🏁") : "🏁";
+  const estAVenir = gpSelectionne?.date ? new Date(gpSelectionne.date) > new Date() : false;
 
   return (
     <main style={{ background: "linear-gradient(180deg, #0a0e1a 0%, #141b2e 100%)", color: "#fff", minHeight: "100vh", fontFamily: "'Rajdhani', sans-serif" }}>
@@ -165,9 +166,16 @@ export default function Courses() {
           <div style={{ background: "#141b2e", borderRadius: "16px", border: "1px solid #253150", padding: "28px", marginBottom: "28px", boxShadow: "0 8px 30px rgba(0,0,0,0.4)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "20px" }}>
               <div>
-                <span style={{ display: "inline-block", background: "#e10600", color: "#fff", padding: "4px 12px", borderRadius: "20px", fontSize: "12px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "12px" }}>
-                  Manche {gpSelectionne.round} — {saison}
-                </span>
+                <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "12px" }}>
+                  <span style={{ display: "inline-block", background: "#e10600", color: "#fff", padding: "4px 12px", borderRadius: "20px", fontSize: "12px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "1px" }}>
+                    Manche {gpSelectionne.round} — {saison}
+                  </span>
+                  {estAVenir && (
+                    <span style={{ display: "inline-block", background: "#253150", color: "#00d4ff", padding: "4px 12px", borderRadius: "20px", fontSize: "12px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "1px" }}>
+                      À venir
+                    </span>
+                  )}
+                </div>
                 <h3 style={{ fontFamily: "'Racing Sans One', cursive", fontSize: "34px", margin: "0 0 8px", lineHeight: "1.2" }}>
                   {drapeauGp} {gpSelectionne.raceName}
                 </h3>
@@ -297,7 +305,9 @@ export default function Courses() {
               </p>
             ) : resultats.length === 0 ? (
               <p style={{ textAlign: "center", color: "#8b9bb4", fontSize: "18px", padding: "50px" }}>
-                Résultats non disponibles pour ce Grand Prix — la course n'a peut-être pas encore eu lieu 🏁
+                {estAVenir
+                  ? "Ce Grand Prix n'a pas encore eu lieu — reviens après la course ! 🏁"
+                  : "Résultats non disponibles pour ce Grand Prix 🏁"}
               </p>
             ) : (
               <div style={{ overflowX: "auto" }}>
