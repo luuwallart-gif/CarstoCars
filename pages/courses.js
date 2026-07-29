@@ -32,12 +32,12 @@ const COULEURS_ECURIES = {
   force_india: "#F596C8", lotus_f1: "#FFB800", manor: "#6E0000",
 };
 
-const ANNEE_MIN = 1950;
-const ANNEE_MAX = 2025;
+const ANNEE_MIN = 2015;
+const ANNEE_MAX = 2026;
 const SAISONS = Array.from({ length: ANNEE_MAX - ANNEE_MIN + 1 }, (_, i) => ANNEE_MAX - i);
 
 export default function Courses() {
-  const [saison, setSaison] = useState(2025);
+  const [saison, setSaison] = useState(2026);
   const [courses, setCourses] = useState([]);
   const [gpSelectionne, setGpSelectionne] = useState(null);
   const [resultats, setResultats] = useState([]);
@@ -77,6 +77,23 @@ export default function Courses() {
         setChargementResultats(false);
       });
   }, [gpSelectionne, saison]);
+
+  {new Date(gpSelectionne.date) > new Date() && (
+  <span style={{
+    display: "inline-block",
+    background: "#253150",
+    color: "#00d4ff",
+    padding: "4px 12px",
+    borderRadius: "20px",
+    fontSize: "12px",
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: "1px",
+    marginLeft: "8px",
+  }}>
+    À venir
+  </span>
+)}
 
   const loc = gpSelectionne?.Circuit?.Location;
   const drapeauGp = loc?.country ? (DRAPEAUX[loc.country] || "🏁") : "🏁";
