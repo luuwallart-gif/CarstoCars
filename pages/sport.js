@@ -81,54 +81,58 @@ export default function Sport() {
         ))}
       </section>
       {/* Bouton classement F1 */}
+      {/* Boutons F1 */}
       {ongletActif === 'f1' && (
         <section style={{ textAlign: "center", padding: "0 40px 40px" }}>
-          <a
-            href="/classement"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "12px",
-              padding: "16px 34px",
-              borderRadius: "40px",
-              background: "linear-gradient(90deg, #00d4ff, #e10600)",
-              color: "#fff",
-              textDecoration: "none",
-              fontSize: "18px",
-              fontWeight: "700",
-              fontFamily: "'Rajdhani', sans-serif",
-              textTransform: "uppercase",
-              letterSpacing: "1px",
-              boxShadow: "0 8px 30px rgba(0,212,255,0.3)",
-            }}
-          >
-            <img src="https://upload.wikimedia.org/wikipedia/commons/3/33/F1.svg" alt="F1" style={{ height: "20px" }} />
-            Voir le classement de la saison →
-          </a>
+          <div style={{ display: "flex", gap: "16px", justifyContent: "center", flexWrap: "wrap" }}>
+            <a
+              href="/classement"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "12px",
+                padding: "16px 34px",
+                borderRadius: "40px",
+                background: "linear-gradient(90deg, #00d4ff, #e10600)",
+                color: "#fff",
+                textDecoration: "none",
+                fontSize: "18px",
+                fontWeight: "700",
+                fontFamily: "'Rajdhani', sans-serif",
+                textTransform: "uppercase",
+                letterSpacing: "1px",
+                boxShadow: "0 8px 30px rgba(0,212,255,0.3)",
+              }}
+            >
+              <img src="https://upload.wikimedia.org/wikipedia/commons/3/33/F1.svg" alt="F1" style={{ height: "20px" }} />
+              Voir le classement de la saison →
+            </a>
 
-          <a
-            href="/courses"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "12px",
-              marginLeft: "16px",
-              padding: "16px 34px",
-              borderRadius: "30px",
-              background: "linear-gradient(90deg, #00d4ff, #e10600)",
-              color: "#fff",
-              textDecoration: "none",
-              fontSize: "18px",
-              fontWeight: "700",
-              fontFamily: "'Rajdhani', sans-serif",
-              textTransform: "uppercase",
-              letterSpacing: "1px",
-              boxShadow: "0 8px 30px rgba(0,212,255,0.3)",
-            }}
-          >
-            <img src="https://upload.wikimedia.org/wikipedia/commons/3/33/F1.svg" alt="F1" style={{ height: "20px" }} />
-            Explorer les Grands Prix →
-          </a>
+            <a
+              href="/courses"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "12px",
+                padding: "16px 34px",
+                borderRadius: "40px",
+                background: "linear-gradient(90deg, #00d4ff, #e10600)",
+                color: "#fff",
+                textDecoration: "none",
+                fontSize: "18px",
+                fontWeight: "700",
+                fontFamily: "'Rajdhani', sans-serif",
+                textTransform: "uppercase",
+                letterSpacing: "1px",
+                boxShadow: "0 8px 30px rgba(0,212,255,0.3)",
+              }}
+            >
+              <img src="https://upload.wikimedia.org/wikipedia/commons/3/33/F1.svg" alt="F1" style={{ height: "20px" }} />
+              Explorer les Grands Prix →
+            </a>
+          </div>
+        </section>
+      )}
 
       {/* Message de chargement */}
       {chargement && (
