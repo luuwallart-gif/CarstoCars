@@ -105,6 +105,29 @@ export default function Sport() {
             <img src="https://upload.wikimedia.org/wikipedia/commons/3/33/F1.svg" alt="F1" style={{ height: "20px" }} />
             Voir le classement de la saison →
           </a>
+
+          <a
+            href="/courses"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "12px",
+              marginLeft: "16px",
+              padding: "16px 34px",
+              borderRadius: "30px",
+              border: "2px solid #253150",
+              background: "#0a0e1a",
+              color: "#00d4ff",
+              textDecoration: "none",
+              fontSize: "18px",
+              fontWeight: "700",
+              fontFamily: "'Rajdhani', sans-serif",
+              textTransform: "uppercase",
+              letterSpacing: "1px",
+            }}
+          >
+            🌍 Explorer les Grands Prix →
+          </a>
         </section>
       )}
 
