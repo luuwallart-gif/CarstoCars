@@ -115,21 +115,20 @@ export default function Sport() {
               marginLeft: "16px",
               padding: "16px 34px",
               borderRadius: "30px",
-              border: "2px solid #253150",
-              background: "#0a0e1a",
-              color: "#00d4ff",
+              background: "linear-gradient(90deg, #00d4ff, #e10600)",
+              color: "#fff",
               textDecoration: "none",
               fontSize: "18px",
               fontWeight: "700",
               fontFamily: "'Rajdhani', sans-serif",
               textTransform: "uppercase",
               letterSpacing: "1px",
+              boxShadow: "0 8px 30px rgba(0,212,255,0.3)",
             }}
           >
-            🌍 Explorer les Grands Prix →
+            <img src="https://upload.wikimedia.org/wikipedia/commons/3/33/F1.svg" alt="F1" style={{ height: "20px" }} />
+            Explorer les Grands Prix →
           </a>
-        </section>
-      )}
 
       {/* Message de chargement */}
       {chargement && (
