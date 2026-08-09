@@ -1,0 +1,11 @@
+@import url('https://fonts.googleapis.com/css2?family=Racing+Sans+One&family=Rajdhani:wght@400;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background: linear-gradient(180deg, #0a0e1a 0%, #141b2e 100%);
+  color: #fff;
+  min-height: 100vh;
+}
