@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 const CarteMonde = dynamic(() => import("../components/CarteMonde"), {
   ssr: false,
   loading: () => (
-    <div className="h-[550px] flex items-center justify-center text-cc-grey bg-cc-card rounded-2xl border border-cc-border text-lg">
+    <div className="h-[550px] flex items-center justify-center text-neutral-500 bg-[#f5f1e8] rounded-3xl border border-neutral-200 text-lg">
       Chargement de la carte...
     </div>
   ),
@@ -36,7 +36,7 @@ const ANNEE_MIN = 2015;
 const ANNEE_MAX = 2026;
 const SAISONS = Array.from({ length: ANNEE_MAX - ANNEE_MIN + 1 }, (_, i) => ANNEE_MAX - i);
 
-const TH = "px-4 py-3.5 text-left text-cc-grey text-[13px] font-bold uppercase tracking-wider";
+const TH = "px-4 py-4 text-left text-neutral-500 text-[11px] font-semibold uppercase tracking-[0.15em]";
 
 export default function Courses() {
   const [saison, setSaison] = useState(2026);
@@ -83,109 +83,106 @@ export default function Courses() {
   const estAVenir = gpSelectionne?.date ? new Date(gpSelectionne.date) > new Date() : false;
 
   return (
-    <main className="font-rajdhani text-white min-h-screen">
+    <main className="font-sans text-neutral-900 min-h-screen bg-[#f5f1e8]">
 
       {/* Barre du haut */}
-      <header className="px-4 md:px-10 py-5 bg-cc-bg/80 border-b-[3px] border-cc-cyan flex justify-between items-center flex-wrap gap-4 sticky top-0 z-[1000] backdrop-blur-lg">
-        <h1
-          className="font-racing m-0 text-2xl md:text-3xl tracking-wide"
-          style={{
-            background: "linear-gradient(90deg, #00d4ff, #e10600)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-          }}
-        >
-          CARSTOCARS
+      <header className="px-6 md:px-12 py-6 bg-[#f5f1e8]/90 border-b border-neutral-300 flex justify-between items-center flex-wrap gap-4 sticky top-0 z-[1000] backdrop-blur-md">
+        <h1 className="font-serif m-0 text-2xl md:text-[28px] tracking-tight text-neutral-900">
+          Carstocars
         </h1>
-        <nav className="text-base md:text-lg font-semibold uppercase tracking-wide flex gap-5 md:gap-6">
-          <a href="/" className="text-white no-underline hover:text-cc-cyan transition-colors">Accueil</a>
-          <a href="/auto" className="text-white no-underline hover:text-cc-cyan transition-colors">Automobile</a>
-          <a href="/sport" className="text-white no-underline hover:text-cc-cyan transition-colors">Sport Auto</a>
-          <a href="/courses" className="text-cc-cyan no-underline">Courses</a>
+        <nav className="text-[13px] font-medium uppercase tracking-[0.15em] flex gap-6 md:gap-8">
+          <a href="/" className="text-neutral-600 no-underline hover:text-neutral-900 transition-colors">Accueil</a>
+          <a href="/auto" className="text-neutral-600 no-underline hover:text-neutral-900 transition-colors">Automobile</a>
+          <a href="/sport" className="text-neutral-600 no-underline hover:text-neutral-900 transition-colors">Sport Auto</a>
+          <a href="/courses" className="text-neutral-900 no-underline border-b border-neutral-900 pb-0.5">Courses</a>
         </nav>
       </header>
 
       {/* Bandeau titre */}
-      <section className="px-4 md:px-10 pt-12 md:pt-16 pb-8 text-center">
-        <h2 className="font-racing text-3xl md:text-5xl mt-0 mb-2.5 uppercase">
-          Les <span className="text-cc-red">Grands Prix</span>
-        </h2>
-        <p className="text-cc-grey text-base md:text-lg m-0">
-          Clique sur un point de la carte pour voir les résultats de la course
+      <section className="px-6 md:px-12 pt-20 md:pt-28 pb-14 text-center max-w-3xl mx-auto">
+        <p className="text-[11px] uppercase tracking-[0.3em] text-neutral-500 mb-5 font-medium">
+          Saison {saison}
         </p>
-        <div className="w-20 h-1 bg-gradient-to-r from-cc-cyan to-cc-red mx-auto mt-5 rounded-sm" />
+        <h2 className="font-serif text-4xl md:text-6xl mt-0 mb-6 leading-[1.1] text-neutral-900">
+          Les Grands Prix
+        </h2>
+        <p className="text-neutral-600 text-base md:text-lg leading-relaxed">
+          Clique sur un point de la carte pour découvrir les résultats de la course
+        </p>
       </section>
 
       {/* Sélecteur de saison */}
-      <section className="flex justify-center items-center gap-4 px-4 md:px-10 pb-10 flex-wrap">
-        <span className="text-cc-grey text-lg font-bold uppercase tracking-wide">Saison</span>
+      <section className="flex justify-center items-center gap-4 px-6 md:px-12 pb-14 flex-wrap">
+        <span className="text-neutral-500 text-[13px] font-medium uppercase tracking-[0.15em]">Saison</span>
         <select
           value={saison}
           onChange={(e) => setSaison(Number(e.target.value))}
-          className="px-6 py-3 rounded-full border-2 border-cc-cyan bg-cc-card text-white text-xl font-bold font-rajdhani tracking-wide cursor-pointer outline-none hover:bg-cc-border transition-colors"
+          className="px-6 py-2.5 rounded-full border border-neutral-300 bg-white text-neutral-900 text-base font-medium cursor-pointer outline-none hover:border-neutral-900 transition-colors"
         >
           {SAISONS.map((an) => (
-            <option key={an} value={an} className="bg-cc-card">{an}</option>
+            <option key={an} value={an}>{an}</option>
           ))}
         </select>
-        <span className="text-cc-grey2 text-base font-semibold">
+        <span className="text-neutral-500 text-sm">
           {chargementCourses ? "..." : `${courses.length} Grands Prix`}
         </span>
       </section>
 
       {/* Carte du monde */}
-      <section className="px-4 md:px-10 pb-10 max-w-[1400px] mx-auto">
+      <section className="px-6 md:px-12 pb-14 max-w-[1400px] mx-auto">
         {chargementCourses ? (
-          <div className="h-[550px] flex items-center justify-center text-cc-grey bg-cc-card rounded-2xl border border-cc-border text-lg">
+          <div className="h-[550px] flex items-center justify-center text-neutral-500 bg-white rounded-3xl border border-neutral-200 text-lg">
             Chargement du calendrier {saison}...
           </div>
         ) : (
-          <CarteMonde
-            courses={courses}
-            gpSelect={gpSelectionne ? `${saison}-${gpSelectionne.round}` : null}
-            saison={saison}
-            onSelect={setGpSelectionne}
-            drapeaux={DRAPEAUX}
-          />
+          <div className="bg-white rounded-3xl border border-neutral-200 overflow-hidden p-2">
+            <CarteMonde
+              courses={courses}
+              gpSelect={gpSelectionne ? `${saison}-${gpSelectionne.round}` : null}
+              saison={saison}
+              onSelect={setGpSelectionne}
+              drapeaux={DRAPEAUX}
+            />
+          </div>
         )}
       </section>
 
       {/* Message si rien sélectionné */}
       {!gpSelectionne && !chargementCourses && (
-        <p className="text-center text-cc-grey text-lg px-4 md:px-10 pb-16">
+        <p className="text-center text-neutral-500 text-base px-6 md:px-12 pb-20">
           Sélectionne un Grand Prix sur la carte pour afficher le classement 🏁
         </p>
       )}
 
       {/* Détail du GP sélectionné */}
       {gpSelectionne && (
-        <section className="px-4 md:px-10 pb-16 max-w-[1200px] mx-auto">
+        <section className="px-6 md:px-12 pb-20 max-w-[1100px] mx-auto">
 
           {/* Entête du GP */}
-          <div className="bg-cc-card rounded-2xl border border-cc-border p-5 md:p-7 mb-7 shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
-            <div className="flex justify-between items-start flex-wrap gap-5">
+          <div className="bg-white rounded-3xl border border-neutral-200 p-8 md:p-10 mb-8">
+            <div className="flex justify-between items-start flex-wrap gap-6">
               <div>
-                <div className="flex gap-2 flex-wrap mb-3">
-                  <span className="inline-block bg-cc-red text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                <div className="flex gap-2 flex-wrap mb-4">
+                  <span className="inline-block bg-neutral-900 text-white px-4 py-1.5 rounded-full text-[11px] font-semibold uppercase tracking-[0.1em]">
                     Manche {gpSelectionne.round} — {saison}
                   </span>
                   {estAVenir && (
-                    <span className="inline-block bg-cc-border text-cc-cyan px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                    <span className="inline-block border border-neutral-300 text-neutral-600 px-4 py-1.5 rounded-full text-[11px] font-semibold uppercase tracking-[0.1em]">
                       À venir
                     </span>
                   )}
                 </div>
-                <h3 className="font-racing text-2xl md:text-4xl mt-0 mb-2 leading-tight">
+                <h3 className="font-serif text-3xl md:text-[44px] mt-0 mb-3 leading-tight text-neutral-900">
                   {drapeauGp} {gpSelectionne.raceName}
                 </h3>
-                <p className="text-cc-grey text-base md:text-[17px] m-0">
+                <p className="text-neutral-600 text-base md:text-lg m-0">
                   {gpSelectionne.Circuit?.circuitName}
                   {loc?.locality && ` • ${loc.locality}`}
                   {loc?.country && `, ${loc.country}`}
                 </p>
                 {gpSelectionne.date && (
-                  <p className="text-cc-grey2 text-[15px] mt-1.5 mb-0 font-semibold">
-                    📅 {new Date(gpSelectionne.date).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}
+                  <p className="text-neutral-500 text-sm mt-2 mb-0 font-medium">
+                    {new Date(gpSelectionne.date).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}
                     {gpSelectionne.time && ` — ${gpSelectionne.time.slice(0, 5)} UTC`}
                   </p>
                 )}
@@ -193,22 +190,22 @@ export default function Courses() {
 
               <button
                 onClick={() => setGpSelectionne(null)}
-                className="px-5 py-2.5 rounded-full border-2 border-cc-border bg-cc-bg text-cc-grey text-[15px] font-bold font-rajdhani uppercase tracking-wide cursor-pointer hover:border-cc-red hover:text-white transition-colors"
+                className="px-6 py-2.5 rounded-full border border-neutral-300 bg-transparent text-neutral-600 text-sm font-medium uppercase tracking-wide cursor-pointer hover:border-neutral-900 hover:text-neutral-900 transition-colors"
               >
-                ✕ Fermer
+                Fermer
               </button>
             </div>
 
             {/* Liens circuit */}
-            <div className="flex gap-3 flex-wrap mt-5">
+            <div className="flex gap-3 flex-wrap mt-8">
               {gpSelectionne.Circuit?.url && (
                 <a
                   href={gpSelectionne.Circuit.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-gradient-to-r from-cc-cyan to-cc-red text-white no-underline text-base font-bold uppercase tracking-wide shadow-[0_8px_30px_rgba(0,212,255,0.3)] hover:brightness-110 transition"
+                  className="inline-flex items-center gap-2.5 px-7 py-3 rounded-full bg-neutral-900 text-white no-underline text-sm font-medium uppercase tracking-wide hover:bg-neutral-700 transition-colors"
                 >
-                  🏁 Voir le tracé du circuit →
+                  Voir le tracé du circuit →
                 </a>
               )}
               {gpSelectionne.url && (
@@ -216,9 +213,9 @@ export default function Courses() {
                   href={gpSelectionne.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full border-2 border-cc-border bg-cc-bg text-cc-cyan no-underline text-base font-bold uppercase tracking-wide hover:border-cc-cyan transition-colors"
+                  className="inline-flex items-center gap-2.5 px-7 py-3 rounded-full border border-neutral-300 bg-transparent text-neutral-700 no-underline text-sm font-medium uppercase tracking-wide hover:border-neutral-900 transition-colors"
                 >
-                  📖 Résumé du Grand Prix →
+                  Résumé du Grand Prix →
                 </a>
               )}
             </div>
@@ -226,30 +223,31 @@ export default function Courses() {
 
           {/* Podium */}
           {!chargementResultats && resultats.length >= 3 && (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-7 items-end">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8 items-end">
               {[1, 0, 2].map((idx, ordre) => {
                 const r = resultats[idx];
-                const medailles = ["🥇", "🥈", "🥉"];
-                const bordures = ["#FFD700", "#C0C0C0", "#CD7F32"];
-                const couleur = COULEURS_ECURIES[r?.Constructor?.constructorId] || "#00d4ff";
+                const medailles = ["1er", "2e", "3e"];
+                const couleur = COULEURS_ECURIES[r?.Constructor?.constructorId] || "#171717";
                 return (
                   <div
                     key={idx}
-                    className={`bg-cc-card rounded-2xl p-5 text-center shadow-[0_8px_30px_rgba(0,0,0,0.4)] border-2 ${idx === 0 ? "sm:pb-8" : ""}`}
-                    style={{ borderColor: bordures[idx], order: ordre }}
+                    className={`bg-white rounded-3xl p-7 text-center border border-neutral-200 ${idx === 0 ? "sm:pb-10 sm:-mt-4" : ""}`}
+                    style={{ order: ordre }}
                   >
-                    <div className="text-4xl mb-2.5">{medailles[idx]}</div>
-                    <div className="text-xl md:text-[22px] font-bold mb-1.5">
-                      <span className="text-cc-grey font-semibold">{r?.Driver?.givenName} </span>
+                    <p className="text-[11px] uppercase tracking-[0.2em] text-neutral-400 mb-3 font-semibold">
+                      {medailles[idx]} place
+                    </p>
+                    <div className="font-serif text-xl md:text-2xl mb-2 text-neutral-900">
+                      <span className="text-neutral-500 font-normal">{r?.Driver?.givenName} </span>
                       {r?.Driver?.familyName}
                     </div>
                     <div
-                      className="text-[15px] font-bold uppercase tracking-wide mb-2.5"
+                      className="text-[12px] font-semibold uppercase tracking-[0.1em] mb-3"
                       style={{ color: couleur }}
                     >
                       {r?.Constructor?.name || "—"}
                     </div>
-                    <div className="text-cc-grey2 text-[15px] font-semibold">
+                    <div className="text-neutral-500 text-sm">
                       {r?.Time?.time || r?.status || "—"} • {r?.points ?? 0} pts
                     </div>
                   </div>
@@ -259,28 +257,28 @@ export default function Courses() {
           )}
 
           {/* Tableau des résultats */}
-          <div className="bg-cc-card rounded-2xl border border-cc-border overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
-            <div className="px-6 py-5 border-b border-cc-border">
-              <h4 className="font-racing text-xl md:text-2xl m-0 uppercase">
+          <div className="bg-white rounded-3xl border border-neutral-200 overflow-hidden">
+            <div className="px-8 py-6 border-b border-neutral-200">
+              <h4 className="font-serif text-2xl m-0 text-neutral-900">
                 Classement de la course
               </h4>
             </div>
 
             {chargementResultats ? (
-              <p className="text-center text-cc-grey text-lg p-12">
+              <p className="text-center text-neutral-500 text-base p-14">
                 Chargement des résultats...
               </p>
             ) : resultats.length === 0 ? (
-              <p className="text-center text-cc-grey text-lg p-12">
+              <p className="text-center text-neutral-500 text-base p-14">
                 {estAVenir
-                  ? "Ce Grand Prix n'a pas encore eu lieu — reviens après la course ! 🏁"
-                  : "Résultats non disponibles pour ce Grand Prix 🏁"}
+                  ? "Ce Grand Prix n'a pas encore eu lieu — reviens après la course !"
+                  : "Résultats non disponibles pour ce Grand Prix"}
               </p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse text-base">
                   <thead>
-                    <tr className="bg-cc-bg">
+                    <tr className="bg-[#f5f1e8]">
                       <th className={TH}>Pos</th>
                       <th className={TH}>Pilote</th>
                       <th className={TH}>Écurie</th>
@@ -291,34 +289,34 @@ export default function Courses() {
                   </thead>
                   <tbody>
                     {resultats.map((r, i) => {
-                      const couleur = COULEURS_ECURIES[r?.Constructor?.constructorId] || "#5a6b8c";
+                      const couleur = COULEURS_ECURIES[r?.Constructor?.constructorId] || "#a3a3a3";
                       const pts = Number(r?.points) || 0;
                       return (
                         <tr
                           key={i}
-                          className={`border-t border-cc-border hover:bg-cc-border/40 transition-colors ${i % 2 === 0 ? "bg-transparent" : "bg-cc-bg/40"}`}
+                          className="border-t border-neutral-200 hover:bg-neutral-50 transition-colors"
                         >
-                          <td className={`px-4 py-3.5 font-bold text-lg ${i < 3 ? "text-cc-cyan" : "text-white"}`}>
+                          <td className={`px-4 py-4 font-semibold text-base ${i < 3 ? "text-neutral-900" : "text-neutral-600"}`}>
                             {r?.position || "—"}
                           </td>
-                          <td className="px-4 py-3.5">
-                            <span className="text-cc-grey">{r?.Driver?.givenName} </span>
-                            <strong>{r?.Driver?.familyName}</strong>
+                          <td className="px-4 py-4">
+                            <span className="text-neutral-500">{r?.Driver?.givenName} </span>
+                            <strong className="text-neutral-900 font-semibold">{r?.Driver?.familyName}</strong>
                           </td>
-                          <td className="px-4 py-3.5">
+                          <td className="px-4 py-4">
                             <span
                               className="inline-block w-1 h-4 mr-2.5 align-middle rounded-sm"
                               style={{ background: couleur }}
                             />
-                            <span className="text-cc-light">{r?.Constructor?.name || "—"}</span>
+                            <span className="text-neutral-700">{r?.Constructor?.name || "—"}</span>
                           </td>
-                          <td className="px-4 py-3.5 text-cc-grey2 font-semibold">
+                          <td className="px-4 py-4 text-neutral-500 font-medium">
                             {r?.grid || "—"}
                           </td>
-                          <td className="px-4 py-3.5 text-cc-grey whitespace-nowrap">
+                          <td className="px-4 py-4 text-neutral-500 whitespace-nowrap">
                             {r?.Time?.time || r?.status || "—"}
                           </td>
-                          <td className={`px-4 py-3.5 text-center text-[17px] ${pts > 0 ? "font-bold text-white" : "font-medium text-cc-faint"}`}>
+                          <td className={`px-4 py-4 text-center text-base ${pts > 0 ? "font-semibold text-neutral-900" : "font-normal text-neutral-400"}`}>
                             {pts}
                           </td>
                         </tr>
@@ -333,9 +331,9 @@ export default function Courses() {
       )}
 
       {/* Bas de page */}
-      <footer className="border-t border-cc-border px-4 md:px-10 py-6 text-cc-grey2 text-sm text-center">
+      <footer className="border-t border-neutral-300 px-6 md:px-12 py-8 text-neutral-500 text-sm text-center">
         © 2026 Carstocars — Passion automobile · Données{" "}
-        <a href="https://api.jolpi.ca" target="_blank" rel="noopener noreferrer" className="text-cc-cyan no-underline hover:underline">
+        <a href="https://api.jolpi.ca" target="_blank" rel="noopener noreferrer" className="text-neutral-900 underline hover:no-underline">
           Jolpica F1 API
         </a>
       </footer>
