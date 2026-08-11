@@ -55,65 +55,135 @@ const tableRowVariant = {
 };
 
 /* ============================================================
-   TROPHÉE SVG TYPE F1 (forme moderne, dégradé métallique)
+   TROPHÉE — coupe classique Grand Prix
+   Proportions hautes, vasque évasée, cannelures, socle à étages
    ============================================================ */
 const METAUX = {
-  or:     { clair: "#FFF6C2", mid: "#FFD700", sombre: "#B8860B", glow: "#FFD700" },
-  argent: { clair: "#FFFFFF", mid: "#D8D8DC", sombre: "#8A8A92", glow: "#C0C0C0" },
-  bronze: { clair: "#F0C9A0", mid: "#CD7F32", sombre: "#7A4A1D", glow: "#CD7F32" },
+  or: {
+    stops: ["#FFF8D0", "#FFD700", "#C99700", "#FFE86B", "#8C6B00"],
+    glow: "#FFD700",
+    label: "Vainqueur",
+  },
+  argent: {
+    stops: ["#FFFFFF", "#E8E8F0", "#A8A8B8", "#F2F2F8", "#6E6E7C"],
+    glow: "#D8D8E8",
+    label: "2ᵉ place",
+  },
+  bronze: {
+    stops: ["#FFD9A8", "#CD7F32", "#8A4E1C", "#E8A05C", "#5C3410"],
+    glow: "#CD7F32",
+    label: "3ᵉ place",
+  },
 };
 
-function TropheeF1({ type = "or", taille = 90, id = "t" }) {
-  const m = METAUX[type];
-  const gid = `grad-${type}-${id}`;
-  const sid = `shine-${type}-${id}`;
+function Trophee({ metal = "or", taille = 96, actif = false, onClick }) {
+  const m = METAUX[metal];
+  const id = `tr-${metal}`;
+
   return (
-    <svg width={taille} height={taille * 1.35} viewBox="0 0 100 135" fill="none">
+    <motion.svg
+      viewBox="0 0 100 160"
+      width={taille}
+      height={taille * 1.6}
+      onClick={onClick}
+      className="cursor-pointer select-none overflow-visible"
+      animate={{ y: [0, -5, 0] }}
+      transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
+      whileHover={{ scale: 1.07 }}
+      whileTap={{ scale: 0.96 }}
+      style={{ filter: `drop-shadow(0 0 ${actif ? 18 : 9}px ${m.glow}${actif ? "cc" : "77"})` }}
+    >
       <defs>
-        <linearGradient id={gid} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor={m.clair} />
-          <stop offset="35%" stopColor={m.mid} />
-          <stop offset="70%" stopColor={m.sombre} />
-          <stop offset="100%" stopColor={m.mid} />
+        {/* Dégradé métallique vertical principal */}
+        <linearGradient id={`${id}-corps`} x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor={m.stops[2]} />
+          <stop offset="18%" stopColor={m.stops[1]} />
+          <stop offset="38%" stopColor={m.stops[0]} />
+          <stop offset="52%" stopColor={m.stops[3]} />
+          <stop offset="74%" stopColor={m.stops[1]} />
+          <stop offset="100%" stopColor={m.stops[4]} />
         </linearGradient>
-        <linearGradient id={sid} x1="0" y1="0" x2="1" y2="0">
+
+        {/* Dégradé socle, plus sombre */}
+        <linearGradient id={`${id}-socle`} x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor={m.stops[4]} />
+          <stop offset="30%" stopColor={m.stops[1]} />
+          <stop offset="60%" stopColor={m.stops[3]} />
+          <stop offset="100%" stopColor={m.stops[4]} />
+        </linearGradient>
+
+        {/* Reflet balayant */}
+        <linearGradient id={`${id}-shine`} x1="0" y1="0" x2="1" y2="0">
           <stop offset="0%" stopColor="#fff" stopOpacity="0" />
-          <stop offset="50%" stopColor="#fff" stopOpacity="0.75" />
+          <stop offset="50%" stopColor="#fff" stopOpacity="0.55" />
           <stop offset="100%" stopColor="#fff" stopOpacity="0" />
         </linearGradient>
-        <clipPath id={`clip-${id}`}>
-          <path d="M28 12 H72 L68 58 Q64 78 50 80 Q36 78 32 58 Z" />
+
+        <clipPath id={`${id}-clip`}>
+          <path d="M28 18 L72 18 L68 52 Q64 70 50 72 Q36 70 32 52 Z" />
         </clipPath>
       </defs>
 
-      {/* anses stylisées F1 */}
-      <path d="M28 20 Q10 24 12 40 Q14 54 30 52" stroke={`url(#${gid})`} strokeWidth="5" strokeLinecap="round" fill="none" />
-      <path d="M72 20 Q90 24 88 40 Q86 54 70 52" stroke={`url(#${gid})`} strokeWidth="5" strokeLinecap="round" fill="none" />
+      {/* ---- Anses ---- */}
+      <path
+        d="M28 24 Q10 26 10 42 Q10 58 30 58"
+        fill="none"
+        stroke={`url(#${id}-corps)`}
+        strokeWidth="5.5"
+        strokeLinecap="round"
+      />
+      <path
+        d="M72 24 Q90 26 90 42 Q90 58 70 58"
+        fill="none"
+        stroke={`url(#${id}-corps)`}
+        strokeWidth="5.5"
+        strokeLinecap="round"
+      />
 
-      {/* coupe */}
-      <path d="M28 12 H72 L68 58 Q64 78 50 80 Q36 78 32 58 Z" fill={`url(#${gid})`} />
+      {/* ---- Vasque ---- */}
+      <path
+        d="M28 18 L72 18 L68 52 Q64 70 50 72 Q36 70 32 52 Z"
+        fill={`url(#${id}-corps)`}
+      />
 
-      {/* reflet animé */}
-      <g clipPath={`url(#clip-${id})`}>
-        <motion.rect
-          x="-40" y="0" width="26" height="90"
-          fill={`url(#${sid})`}
-          transform="skewX(-18)"
-          animate={{ x: [-40, 110] }}
-          transition={{ duration: 2.6, repeat: Infinity, repeatDelay: 2, ease: "easeInOut" }}
-        />
+      {/* Cannelures verticales dans la vasque */}
+      <g clipPath={`url(#${id}-clip)`} opacity="0.28">
+        {[36, 43, 50, 57, 64].map((x) => (
+          <rect key={x} x={x} y="18" width="1.6" height="54" fill={m.stops[4]} />
+        ))}
       </g>
 
-      {/* liseré haut */}
-      <rect x="26" y="10" width="48" height="6" rx="3" fill={m.clair} opacity="0.9" />
+      {/* Lèvre supérieure */}
+      <rect x="25" y="14" width="50" height="7" rx="3.5" fill={`url(#${id}-corps)`} />
+      <rect x="25" y="14" width="50" height="2.4" rx="1.2" fill={m.stops[0]} opacity="0.6" />
 
-      {/* tige */}
-      <rect x="45" y="80" width="10" height="18" fill={`url(#${gid})`} />
-      {/* socle */}
-      <path d="M30 98 H70 L76 112 H24 Z" fill={`url(#${gid})`} />
-      <rect x="20" y="112" width="60" height="10" rx="3" fill={m.sombre} />
-      <rect x="20" y="112" width="60" height="4" rx="2" fill={m.mid} />
-    </svg>
+      {/* ---- Tige ---- */}
+      <path d="M46 72 L54 72 L55 90 L45 90 Z" fill={`url(#${id}-corps)`} />
+      {/* Nœud décoratif */}
+      <ellipse cx="50" cy="82" rx="9" ry="4.5" fill={`url(#${id}-corps)`} />
+      <ellipse cx="50" cy="80.5" rx="9" ry="2" fill={m.stops[0]} opacity="0.45" />
+
+      {/* ---- Socle : trois étages ---- */}
+      <path d="M38 90 L62 90 L66 100 L34 100 Z" fill={`url(#${id}-socle)`} />
+      <rect x="30" y="100" width="40" height="9" rx="2" fill={`url(#${id}-corps)`} />
+      <rect x="24" y="109" width="52" height="13" rx="2.5" fill={`url(#${id}-socle)`} />
+
+      {/* Plaque gravée sur le socle */}
+      <rect x="32" y="112.5" width="36" height="6.5" rx="1.5" fill={m.stops[4]} opacity="0.55" />
+      <rect x="32" y="112.5" width="36" height="1.2" rx="0.6" fill={m.stops[0]} opacity="0.35" />
+
+      {/* ---- Reflet animé ---- */}
+      <motion.rect
+        x="-40"
+        y="0"
+        width="26"
+        height="160"
+        fill={`url(#${id}-shine)`}
+        transform="skewX(-18)"
+        animate={{ x: [-40, 130] }}
+        transition={{ duration: 2.8, repeat: Infinity, repeatDelay: 3.5, ease: "easeInOut" }}
+      />
+    </motion.svg>
   );
 }
 
@@ -217,135 +287,173 @@ function NomPiloteHover({ driver, couleur }) {
   );
 }
 
-/* ============================================================
-   PODIUM 3D
-   ============================================================ */
-function Podium({ resultats }) {
-  const [actif, setActif] = useState(null);
-
-  // ordre visuel : P2 gauche, P1 centre, P3 droite
-  const places = [
-    { idx: 1, hauteur: 96,  metal: "argent", label: "2" },
-    { idx: 0, hauteur: 140, metal: "or",     label: "1" },
-    { idx: 2, hauteur: 66,  metal: "bronze", label: "3" },
-  ];
-
-  return (
-    <div className="mb-8 rounded-2xl bg-gradient-to-b from-cc-card to-cc-bg border border-cc-border p-6 md:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.4)] overflow-hidden">
-      <div className="flex items-end justify-center gap-3 md:gap-6 flex-wrap md:flex-nowrap">
-        {places.map(({ idx, hauteur, metal, label }, i) => {
+{/* ============ PODIUM NÉON ============ */}
+{!chargementResultats && resultats.length >= 3 && (
+  <div className="mb-10 pt-4">
+    {/* Sol réfléchissant */}
+    <div className="relative">
+      <div className="grid grid-cols-3 gap-2 md:gap-5 items-end max-w-[820px] mx-auto">
+        {[
+          { idx: 1, metal: "argent", h: "h-[90px] md:h-[120px]", pos: 2 },
+          { idx: 0, metal: "or", h: "h-[130px] md:h-[175px]", pos: 1 },
+          { idx: 2, metal: "bronze", h: "h-[62px] md:h-[85px]", pos: 3 },
+        ].map(({ idx, metal, h, pos }) => {
           const r = resultats[idx];
-          if (!r) return null;
-          const couleur = COULEURS_ECURIES[r?.Constructor?.constructorId] || "#00d4ff";
           const m = METAUX[metal];
-          const estActif = actif === idx;
+          const couleur = COULEURS_ECURIES[r?.Constructor?.constructorId] || "#00d4ff";
+          const ouvert = podiumOuvert === idx;
 
           return (
-            <motion.div
-              key={idx}
-              initial={{ opacity: 0, y: 60 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.15 * i, ease: [0.25, 0.1, 0.25, 1] }}
-              className="flex flex-col items-center flex-1 min-w-[150px] max-w-[240px]"
-            >
-              {/* Trophée cliquable */}
-              <motion.button
-                onClick={() => setActif(estActif ? null : idx)}
-                whileHover={{ scale: 1.1, rotate: [0, -4, 4, 0] }}
-                whileTap={{ scale: 0.94 }}
-                animate={{ y: [0, -7, 0] }}
-                transition={{
-                  y: { duration: 2.4, repeat: Infinity, ease: "easeInOut", delay: i * 0.25 },
-                  scale: { duration: 0.25 },
-                }}
-                className="bg-transparent border-0 cursor-pointer p-0 mb-1"
-                style={{ filter: `drop-shadow(0 6px 18px ${m.glow}66)` }}
-                aria-label={`Trophée ${label}`}
-              >
-                <TropheeF1 type={metal} taille={idx === 0 ? 86 : 66} id={`p${idx}`} />
-              </motion.button>
+            <div key={idx} className="flex flex-col items-center">
+              {/* Trophée */}
+              <Trophee
+                metal={metal}
+                taille={pos === 1 ? 62 : 48}
+                actif={ouvert}
+                onClick={() => setPodiumOuvert(ouvert ? null : idx)}
+              />
 
-              {/* Avatar */}
-              <motion.div whileHover={{ scale: 1.06 }} className="mb-2.5">
-                <AvatarPilote driver={r.Driver} couleur={couleur} taille={idx === 0 ? 92 : 74} />
-              </motion.div>
-
-              {/* Nom */}
-              <div className="text-center mb-2 px-1">
-                <div className={`font-bold leading-tight ${idx === 0 ? "text-lg md:text-xl" : "text-base md:text-lg"}`}>
-                  <span className="text-cc-grey font-semibold">{r?.Driver?.givenName} </span>
-                  <span className="text-white">{r?.Driver?.familyName}</span>
-                </div>
-                <div className="text-[13px] font-bold uppercase tracking-wide mt-0.5" style={{ color: couleur }}>
-                  {r?.Constructor?.name || "—"}
+              {/* Avatar + nom */}
+              <div className="flex flex-col items-center mt-2 mb-3 px-1">
+                <AvatarPilote
+                  driver={r?.Driver}
+                  couleur={couleur}
+                  taille={pos === 1 ? 56 : 46}
+                />
+                <div className="text-center mt-2">
+                  <div className="text-[11px] md:text-xs text-cc-grey uppercase tracking-wide leading-tight">
+                    {r?.Driver?.givenName}
+                  </div>
+                  <div className="text-sm md:text-lg font-bold leading-tight">
+                    {r?.Driver?.familyName}
+                  </div>
+                  <div
+                    className="text-[10px] md:text-[11px] font-bold uppercase tracking-wider mt-0.5"
+                    style={{ color: couleur }}
+                  >
+                    {r?.Constructor?.name}
+                  </div>
                 </div>
               </div>
 
-              {/* Marche du podium */}
+              {/* ---- MARCHE NÉON ---- */}
               <motion.div
-                initial={{ height: 0 }}
-                animate={{ height: hauteur }}
-                transition={{ duration: 0.7, delay: 0.3 + 0.15 * i, ease: "easeOut" }}
-                whileHover={{ filter: "brightness(1.15)" }}
-                onClick={() => setActif(estActif ? null : idx)}
-                className="w-full rounded-t-lg relative flex items-start justify-center pt-3 cursor-pointer overflow-hidden"
+                initial={{ scaleY: 0 }}
+                animate={{ scaleY: 1 }}
+                transition={{ duration: 0.55, delay: 0.15 + pos * 0.12, ease: [0.34, 1.2, 0.64, 1] }}
+                onClick={() => setPodiumOuvert(ouvert ? null : idx)}
+                className={`${h} w-full origin-bottom relative rounded-t-lg cursor-pointer overflow-hidden`}
                 style={{
-                  background: `linear-gradient(180deg, ${m.mid} 0%, ${m.sombre} 100%)`,
-                  boxShadow: `inset 0 3px 0 ${m.clair}, 0 -2px 24px ${m.glow}44`,
+                  background:
+                    "linear-gradient(180deg, rgba(20,27,46,0.92) 0%, rgba(10,14,26,0.96) 100%)",
+                  border: `1.5px solid ${m.glow}`,
+                  boxShadow: ouvert
+                    ? `0 0 28px ${m.glow}88, 0 0 60px ${m.glow}44, inset 0 0 26px ${m.glow}33`
+                    : `0 0 14px ${m.glow}55, inset 0 0 16px ${m.glow}1f`,
+                  transition: "box-shadow 0.3s ease",
                 }}
               >
-                <span
-                  className="font-racing leading-none"
+                {/* Lignes de scan */}
+                <div
+                  className="absolute inset-0 opacity-[0.13] pointer-events-none"
                   style={{
-                    fontSize: idx === 0 ? 46 : 36,
-                    color: "rgba(0,0,0,0.35)",
-                    textShadow: `0 2px 0 ${m.clair}66`,
+                    backgroundImage: `repeating-linear-gradient(0deg, ${m.glow} 0px, ${m.glow} 1px, transparent 1px, transparent 9px)`,
                   }}
-                >
-                  {label}
-                </span>
+                />
+
+                {/* Liseré haut lumineux */}
+                <div
+                  className="absolute top-0 left-0 right-0 h-[2px]"
+                  style={{ background: m.glow, boxShadow: `0 0 10px ${m.glow}` }}
+                />
+
+                {/* Numéro néon */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span
+                    className="font-racing text-3xl md:text-5xl"
+                    style={{
+                      color: "#fff",
+                      textShadow: `0 0 6px #fff, 0 0 14px ${m.glow}, 0 0 30px ${m.glow}, 0 0 50px ${m.glow}aa`,
+                    }}
+                  >
+                    {pos}
+                  </span>
+                </div>
               </motion.div>
 
-              {/* Panneau détail */}
-              <AnimatePresence>
-                {estActif && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0, marginTop: 0 }}
-                    animate={{ opacity: 1, height: "auto", marginTop: 12 }}
-                    exit={{ opacity: 0, height: 0, marginTop: 0 }}
-                    transition={{ duration: 0.28 }}
-                    className="w-full overflow-hidden"
-                  >
-                    <div
-                      className="rounded-xl border bg-cc-card px-3 py-3 text-center"
-                      style={{ borderColor: couleur }}
-                    >
-                      <div className="text-cc-grey text-[12px] uppercase tracking-wider font-bold mb-1">Détails</div>
-                      <div className="text-white text-[15px] font-semibold">{r?.Time?.time || r?.status || "—"}</div>
-                      <div className="text-cc-grey2 text-[14px] mt-1">
-                        Grille P{r?.grid || "—"} • {r?.laps || "—"} tours
-                      </div>
-                      <div className="text-[15px] font-bold mt-1" style={{ color: couleur }}>
-                        {r?.points ?? 0} pts
-                      </div>
-                      {r?.Driver?.nationality && (
-                        <div className="text-cc-grey2 text-[13px] mt-1">{r.Driver.nationality}</div>
-                      )}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
+              {/* Reflet au sol */}
+              <div
+                className={`${h} w-full rounded-b-lg pointer-events-none`}
+                style={{
+                  background: `linear-gradient(180deg, ${m.glow}22 0%, transparent 55%)`,
+                  transform: "scaleY(-1)",
+                  opacity: 0.4,
+                  maskImage: "linear-gradient(180deg, transparent, black)",
+                  WebkitMaskImage: "linear-gradient(180deg, transparent, black)",
+                }}
+              />
+            </div>
           );
         })}
       </div>
-
-      <p className="text-center text-cc-grey2 text-[13px] mt-5 mb-0 uppercase tracking-wider font-semibold">
-        Clique sur un trophée pour voir les détails
-      </p>
     </div>
-  );
-}
+
+    {/* Panneau de détail */}
+    <AnimatePresence>
+      {podiumOuvert !== null && resultats[podiumOuvert] && (
+        <motion.div
+          initial={{ opacity: 0, height: 0, marginTop: 0 }}
+          animate={{ opacity: 1, height: "auto", marginTop: 20 }}
+          exit={{ opacity: 0, height: 0, marginTop: 0 }}
+          transition={{ duration: 0.3 }}
+          className="overflow-hidden max-w-[820px] mx-auto"
+        >
+          {(() => {
+            const r = resultats[podiumOuvert];
+            const metal = ["or", "argent", "bronze"][podiumOuvert];
+            const m = METAUX[metal];
+            return (
+              <div
+                className="rounded-xl p-5 bg-cc-card/80 backdrop-blur"
+                style={{
+                  border: `1px solid ${m.glow}66`,
+                  boxShadow: `0 0 24px ${m.glow}22`,
+                }}
+              >
+                <div
+                  className="text-xs font-bold uppercase tracking-[0.2em] mb-3"
+                  style={{ color: m.glow, textShadow: `0 0 10px ${m.glow}77` }}
+                >
+                  {m.label}
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {[
+                    ["Temps", r?.Time?.time || r?.status || "—"],
+                    ["Grille", `P${r?.grid || "—"}`],
+                    ["Tours", r?.laps || "—"],
+                    ["Points", r?.points ?? 0],
+                  ].map(([k, v]) => (
+                    <div key={k}>
+                      <div className="text-[11px] text-cc-grey2 uppercase tracking-wider mb-1">{k}</div>
+                      <div className="text-base md:text-lg font-bold text-white">{v}</div>
+                    </div>
+                  ))}
+                </div>
+                {r?.FastestLap?.Time?.time && (
+                  <div className="mt-4 pt-3 border-t border-cc-border text-sm text-cc-grey">
+                    ⏱️ Meilleur tour :{" "}
+                    <strong className="text-cc-cyan">{r.FastestLap.Time.time}</strong>
+                    {r.FastestLap.lap && ` (tour ${r.FastestLap.lap})`}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+        </motion.div>
+      )}
+    </AnimatePresence>
+  </div>
+)}
 
 /* ============================================================
    PAGE
