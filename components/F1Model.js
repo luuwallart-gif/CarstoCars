@@ -17,8 +17,8 @@ export default function F1Model() {
         <meshStandardMaterial color="#e10600" metalness={0.6} roughness={0.3} />
       </mesh>
 
-      <mesh position={[1.8, 0, 0]}>
-        <coneGeometry args={[0.3, 1.2, 8]} rotation={[0, 0, Math.PI / 2]} />
+            <mesh position={[1.8, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+        <coneGeometry args={[0.3, 1.2, 8]} />
         <meshStandardMaterial color="#1a1a1a" metalness={0.7} roughness={0.2} />
       </mesh>
 
