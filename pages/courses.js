@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -39,7 +39,6 @@ const SAISONS = Array.from({ length: ANNEE_MAX - ANNEE_MIN + 1 }, (_, i) => ANNE
 
 const TH = "px-4 py-3.5 text-left text-cc-grey text-[13px] font-bold uppercase tracking-wider";
 
-// Variants pour les animations de scroll reveal
 const fadeInUp = {
   hidden: { opacity: 0, y: 40 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.25, 0.1, 0.25, 1] } },
@@ -47,10 +46,7 @@ const fadeInUp = {
 
 const staggerContainer = {
   hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.08 },
-  },
+  visible: { opacity: 1, transition: { staggerChildren: 0.08 } },
 };
 
 const tableRowVariant = {
@@ -58,6 +54,302 @@ const tableRowVariant = {
   visible: { opacity: 1, x: 0, transition: { duration: 0.35 } },
 };
 
+/* ============================================================
+   TROPHÉE SVG TYPE F1 (forme moderne, dégradé métallique)
+   ============================================================ */
+const METAUX = {
+  or:     { clair: "#FFF6C2", mid: "#FFD700", sombre: "#B8860B", glow: "#FFD700" },
+  argent: { clair: "#FFFFFF", mid: "#D8D8DC", sombre: "#8A8A92", glow: "#C0C0C0" },
+  bronze: { clair: "#F0C9A0", mid: "#CD7F32", sombre: "#7A4A1D", glow: "#CD7F32" },
+};
+
+function TropheeF1({ type = "or", taille = 90, id = "t" }) {
+  const m = METAUX[type];
+  const gid = `grad-${type}-${id}`;
+  const sid = `shine-${type}-${id}`;
+  return (
+    <svg width={taille} height={taille * 1.35} viewBox="0 0 100 135" fill="none">
+      <defs>
+        <linearGradient id={gid} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor={m.clair} />
+          <stop offset="35%" stopColor={m.mid} />
+          <stop offset="70%" stopColor={m.sombre} />
+          <stop offset="100%" stopColor={m.mid} />
+        </linearGradient>
+        <linearGradient id={sid} x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="#fff" stopOpacity="0" />
+          <stop offset="50%" stopColor="#fff" stopOpacity="0.75" />
+          <stop offset="100%" stopColor="#fff" stopOpacity="0" />
+        </linearGradient>
+        <clipPath id={`clip-${id}`}>
+          <path d="M28 12 H72 L68 58 Q64 78 50 80 Q36 78 32 58 Z" />
+        </clipPath>
+      </defs>
+
+      {/* anses stylisées F1 */}
+      <path d="M28 20 Q10 24 12 40 Q14 54 30 52" stroke={`url(#${gid})`} strokeWidth="5" strokeLinecap="round" fill="none" />
+      <path d="M72 20 Q90 24 88 40 Q86 54 70 52" stroke={`url(#${gid})`} strokeWidth="5" strokeLinecap="round" fill="none" />
+
+      {/* coupe */}
+      <path d="M28 12 H72 L68 58 Q64 78 50 80 Q36 78 32 58 Z" fill={`url(#${gid})`} />
+
+      {/* reflet animé */}
+      <g clipPath={`url(#clip-${id})`}>
+        <motion.rect
+          x="-40" y="0" width="26" height="90"
+          fill={`url(#${sid})`}
+          transform="skewX(-18)"
+          animate={{ x: [-40, 110] }}
+          transition={{ duration: 2.6, repeat: Infinity, repeatDelay: 2, ease: "easeInOut" }}
+        />
+      </g>
+
+      {/* liseré haut */}
+      <rect x="26" y="10" width="48" height="6" rx="3" fill={m.clair} opacity="0.9" />
+
+      {/* tige */}
+      <rect x="45" y="80" width="10" height="18" fill={`url(#${gid})`} />
+      {/* socle */}
+      <path d="M30 98 H70 L76 112 H24 Z" fill={`url(#${gid})`} />
+      <rect x="20" y="112" width="60" height="10" rx="3" fill={m.sombre} />
+      <rect x="20" y="112" width="60" height="4" rx="2" fill={m.mid} />
+    </svg>
+  );
+}
+
+/* ============================================================
+   PHOTO PILOTE : Wikipedia -> fallback initiales
+   ============================================================ */
+const cachePhotos = {};
+
+function usePhotoPilote(driver) {
+  const [src, setSrc] = useState(null);
+  const url = driver?.url;
+
+  useEffect(() => {
+    if (!url) return;
+    const titre = decodeURIComponent(url.split("/wiki/")[1] || "");
+    if (!titre) return;
+    if (cachePhotos[titre] !== undefined) { setSrc(cachePhotos[titre]); return; }
+
+    let annule = false;
+    fetch(`https://fr.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(titre)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        let img = d?.thumbnail?.source || null;
+        if (img) { cachePhotos[titre] = img; if (!annule) setSrc(img); return; }
+        return fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(titre)}`)
+          .then((r) => (r.ok ? r.json() : null))
+          .then((d2) => {
+            const img2 = d2?.thumbnail?.source || null;
+            cachePhotos[titre] = img2;
+            if (!annule) setSrc(img2);
+          });
+      })
+      .catch(() => { cachePhotos[titre] = null; });
+
+    return () => { annule = true; };
+  }, [url]);
+
+  return src;
+}
+
+function AvatarPilote({ driver, couleur, taille = 88 }) {
+  const photo = usePhotoPilote(driver);
+  const initiales = `${driver?.givenName?.[0] || ""}${driver?.familyName?.[0] || ""}`.toUpperCase();
+  return (
+    <div
+      className="rounded-full overflow-hidden flex items-center justify-center font-racing shrink-0"
+      style={{
+        width: taille, height: taille,
+        border: `3px solid ${couleur}`,
+        background: photo ? "#0b1220" : `linear-gradient(135deg, ${couleur}33, ${couleur}0d)`,
+        boxShadow: `0 0 20px ${couleur}55`,
+        fontSize: taille * 0.34,
+        color: couleur,
+      }}
+    >
+      {photo ? (
+        <img src={photo} alt={driver?.familyName} className="w-full h-full object-cover" />
+      ) : (
+        initiales
+      )}
+    </div>
+  );
+}
+
+/* Nom de pilote avec tooltip photo au survol (tableau) */
+function NomPiloteHover({ driver, couleur }) {
+  const [ouvert, setOuvert] = useState(false);
+  return (
+    <span
+      className="relative inline-block cursor-default"
+      onMouseEnter={() => setOuvert(true)}
+      onMouseLeave={() => setOuvert(false)}
+    >
+      <span className="text-cc-grey">{driver?.givenName} </span>
+      <strong className="border-b border-dotted border-cc-border">{driver?.familyName}</strong>
+
+      <AnimatePresence>
+        {ouvert && (
+          <motion.span
+            initial={{ opacity: 0, y: 8, scale: 0.94 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 6, scale: 0.96 }}
+            transition={{ duration: 0.18 }}
+            className="absolute left-0 bottom-full mb-2 z-[2000] flex items-center gap-3 p-3 rounded-xl bg-cc-bg border shadow-[0_12px_40px_rgba(0,0,0,0.6)] whitespace-nowrap"
+            style={{ borderColor: couleur }}
+          >
+            <AvatarPilote driver={driver} couleur={couleur} taille={56} />
+            <span className="block text-left">
+              <span className="block text-white font-bold text-[15px]">
+                {driver?.givenName} {driver?.familyName}
+              </span>
+              <span className="block text-[13px] font-semibold" style={{ color: couleur }}>
+                {driver?.nationality || "—"}
+                {driver?.permanentNumber ? ` • #${driver.permanentNumber}` : ""}
+              </span>
+            </span>
+          </motion.span>
+        )}
+      </AnimatePresence>
+    </span>
+  );
+}
+
+/* ============================================================
+   PODIUM 3D
+   ============================================================ */
+function Podium({ resultats }) {
+  const [actif, setActif] = useState(null);
+
+  // ordre visuel : P2 gauche, P1 centre, P3 droite
+  const places = [
+    { idx: 1, hauteur: 96,  metal: "argent", label: "2" },
+    { idx: 0, hauteur: 140, metal: "or",     label: "1" },
+    { idx: 2, hauteur: 66,  metal: "bronze", label: "3" },
+  ];
+
+  return (
+    <div className="mb-8 rounded-2xl bg-gradient-to-b from-cc-card to-cc-bg border border-cc-border p-6 md:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.4)] overflow-hidden">
+      <div className="flex items-end justify-center gap-3 md:gap-6 flex-wrap md:flex-nowrap">
+        {places.map(({ idx, hauteur, metal, label }, i) => {
+          const r = resultats[idx];
+          if (!r) return null;
+          const couleur = COULEURS_ECURIES[r?.Constructor?.constructorId] || "#00d4ff";
+          const m = METAUX[metal];
+          const estActif = actif === idx;
+
+          return (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, y: 60 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.15 * i, ease: [0.25, 0.1, 0.25, 1] }}
+              className="flex flex-col items-center flex-1 min-w-[150px] max-w-[240px]"
+            >
+              {/* Trophée cliquable */}
+              <motion.button
+                onClick={() => setActif(estActif ? null : idx)}
+                whileHover={{ scale: 1.1, rotate: [0, -4, 4, 0] }}
+                whileTap={{ scale: 0.94 }}
+                animate={{ y: [0, -7, 0] }}
+                transition={{
+                  y: { duration: 2.4, repeat: Infinity, ease: "easeInOut", delay: i * 0.25 },
+                  scale: { duration: 0.25 },
+                }}
+                className="bg-transparent border-0 cursor-pointer p-0 mb-1"
+                style={{ filter: `drop-shadow(0 6px 18px ${m.glow}66)` }}
+                aria-label={`Trophée ${label}`}
+              >
+                <TropheeF1 type={metal} taille={idx === 0 ? 86 : 66} id={`p${idx}`} />
+              </motion.button>
+
+              {/* Avatar */}
+              <motion.div whileHover={{ scale: 1.06 }} className="mb-2.5">
+                <AvatarPilote driver={r.Driver} couleur={couleur} taille={idx === 0 ? 92 : 74} />
+              </motion.div>
+
+              {/* Nom */}
+              <div className="text-center mb-2 px-1">
+                <div className={`font-bold leading-tight ${idx === 0 ? "text-lg md:text-xl" : "text-base md:text-lg"}`}>
+                  <span className="text-cc-grey font-semibold">{r?.Driver?.givenName} </span>
+                  <span className="text-white">{r?.Driver?.familyName}</span>
+                </div>
+                <div className="text-[13px] font-bold uppercase tracking-wide mt-0.5" style={{ color: couleur }}>
+                  {r?.Constructor?.name || "—"}
+                </div>
+              </div>
+
+              {/* Marche du podium */}
+              <motion.div
+                initial={{ height: 0 }}
+                animate={{ height: hauteur }}
+                transition={{ duration: 0.7, delay: 0.3 + 0.15 * i, ease: "easeOut" }}
+                whileHover={{ filter: "brightness(1.15)" }}
+                onClick={() => setActif(estActif ? null : idx)}
+                className="w-full rounded-t-lg relative flex items-start justify-center pt-3 cursor-pointer overflow-hidden"
+                style={{
+                  background: `linear-gradient(180deg, ${m.mid} 0%, ${m.sombre} 100%)`,
+                  boxShadow: `inset 0 3px 0 ${m.clair}, 0 -2px 24px ${m.glow}44`,
+                }}
+              >
+                <span
+                  className="font-racing leading-none"
+                  style={{
+                    fontSize: idx === 0 ? 46 : 36,
+                    color: "rgba(0,0,0,0.35)",
+                    textShadow: `0 2px 0 ${m.clair}66`,
+                  }}
+                >
+                  {label}
+                </span>
+              </motion.div>
+
+              {/* Panneau détail */}
+              <AnimatePresence>
+                {estActif && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                    animate={{ opacity: 1, height: "auto", marginTop: 12 }}
+                    exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                    transition={{ duration: 0.28 }}
+                    className="w-full overflow-hidden"
+                  >
+                    <div
+                      className="rounded-xl border bg-cc-card px-3 py-3 text-center"
+                      style={{ borderColor: couleur }}
+                    >
+                      <div className="text-cc-grey text-[12px] uppercase tracking-wider font-bold mb-1">Détails</div>
+                      <div className="text-white text-[15px] font-semibold">{r?.Time?.time || r?.status || "—"}</div>
+                      <div className="text-cc-grey2 text-[14px] mt-1">
+                        Grille P{r?.grid || "—"} • {r?.laps || "—"} tours
+                      </div>
+                      <div className="text-[15px] font-bold mt-1" style={{ color: couleur }}>
+                        {r?.points ?? 0} pts
+                      </div>
+                      {r?.Driver?.nationality && (
+                        <div className="text-cc-grey2 text-[13px] mt-1">{r.Driver.nationality}</div>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          );
+        })}
+      </div>
+
+      <p className="text-center text-cc-grey2 text-[13px] mt-5 mb-0 uppercase tracking-wider font-semibold">
+        Clique sur un trophée pour voir les détails
+      </p>
+    </div>
+  );
+}
+
+/* ============================================================
+   PAGE
+   ============================================================ */
 export default function Courses() {
   const [saison, setSaison] = useState(2026);
   const [courses, setCourses] = useState([]);
@@ -327,55 +619,9 @@ export default function Courses() {
               </div>
             </motion.div>
 
-            {/* Podium */}
+            {/* PODIUM 3D */}
             {!chargementResultats && resultats.length >= 3 && (
-              <motion.div
-                initial="hidden"
-                animate="visible"
-                variants={staggerContainer}
-                className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-7 items-end"
-              >
-                {[1, 0, 2].map((idx, ordre) => {
-                  const r = resultats[idx];
-                  const medailles = ["🥇", "🥈", "🥉"];
-                  const bordures = ["#FFD700", "#C0C0C0", "#CD7F32"];
-                  const couleur = COULEURS_ECURIES[r?.Constructor?.constructorId] || "#00d4ff";
-                  return (
-                    <motion.div
-                      key={idx}
-                      variants={fadeInUp}
-                      whileHover={{
-                        y: -8,
-                        boxShadow: `0 16px 40px ${bordures[idx]}33`,
-                        transition: { duration: 0.25 },
-                      }}
-                      className={`bg-cc-card rounded-2xl p-5 text-center shadow-[0_8px_30px_rgba(0,0,0,0.4)] border-2 cursor-default ${idx === 0 ? "sm:pb-8" : ""}`}
-                      style={{ borderColor: bordures[idx], order: ordre }}
-                    >
-                      <motion.div
-                        animate={{ y: [0, -6, 0] }}
-                        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: idx * 0.2 }}
-                        className="text-4xl mb-2.5"
-                      >
-                        {medailles[idx]}
-                      </motion.div>
-                      <div className="text-xl md:text-[22px] font-bold mb-1.5">
-                        <span className="text-cc-grey font-semibold">{r?.Driver?.givenName} </span>
-                        {r?.Driver?.familyName}
-                      </div>
-                      <div
-                        className="text-[15px] font-bold uppercase tracking-wide mb-2.5"
-                        style={{ color: couleur }}
-                      >
-                        {r?.Constructor?.name || "—"}
-                      </div>
-                      <div className="text-cc-grey2 text-[15px] font-semibold">
-                        {r?.Time?.time || r?.status || "—"} • {r?.points ?? 0} pts
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </motion.div>
+              <Podium resultats={resultats} />
             )}
 
             {/* Tableau des résultats */}
@@ -383,7 +629,7 @@ export default function Courses() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="bg-cc-card rounded-2xl border border-cc-border overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.4)]"
+              className="bg-cc-card rounded-2xl border border-cc-border shadow-[0_8px_30px_rgba(0,0,0,0.4)]"
             >
               <div className="px-6 py-5 border-b border-cc-border">
                 <h4 className="font-racing text-xl md:text-2xl m-0 uppercase">
@@ -430,10 +676,7 @@ export default function Courses() {
                           <motion.tr
                             key={i}
                             variants={tableRowVariant}
-                            whileHover={{
-                              backgroundColor: "rgba(0,212,255,0.06)",
-                              scale: 1.005,
-                            }}
+                            whileHover={{ backgroundColor: "rgba(0,212,255,0.06)" }}
                             transition={{ duration: 0.15 }}
                             className={`border-t border-cc-border ${i % 2 === 0 ? "bg-transparent" : "bg-cc-bg/40"}`}
                           >
@@ -441,8 +684,7 @@ export default function Courses() {
                               {r?.position || "—"}
                             </td>
                             <td className="px-4 py-3.5">
-                              <span className="text-cc-grey">{r?.Driver?.givenName} </span>
-                              <strong>{r?.Driver?.familyName}</strong>
+                              <NomPiloteHover driver={r?.Driver} couleur={couleur} />
                             </td>
                             <td className="px-4 py-3.5">
                               <span
