@@ -4,9 +4,9 @@ import "leaflet/dist/leaflet.css";
 export default function CarteMonde({ courses, gpSelect, saison, onSelect, drapeaux }) {
   return (
     <div style={{
-      borderRadius: "16px",
+      borderRadius: "14px",
       overflow: "hidden",
-      border: "1px solid rgba(255,255,255,0.1)",
+      border: "1px solid #2a2a2e",
     }}>
       <MapContainer
         center={[25, 10]}
@@ -18,8 +18,8 @@ export default function CarteMonde({ courses, gpSelect, saison, onSelect, drapea
         style={{ height: "550px", width: "100%", background: "#0a0a0a" }}
       >
         <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+          attribution='&copy; OpenStreetMap &copy; CARTO'
         />
 
         {courses.map((c) => {
@@ -35,9 +35,9 @@ export default function CarteMonde({ courses, gpSelect, saison, onSelect, drapea
               center={[parseFloat(loc.lat), parseFloat(loc.long)]}
               radius={actif ? 12 : 8}
               pathOptions={{
-                color: "#ffffff",
+                color: "#0c0c0d",
                 weight: 2,
-                fillColor: actif ? "#00d4ff" : "#e10600",
+                fillColor: actif ? "#f2efe9" : "#ff5a1f",
                 fillOpacity: 0.95,
               }}
               eventHandlers={{
