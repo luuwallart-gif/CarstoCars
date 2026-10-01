@@ -6,19 +6,19 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-  'cc-bg': '#0a0e1a',
-  'cc-card': '#141b2e',
-  'cc-border': '#253150',
-  'cc-cyan': '#00d4ff',
-  'cc-red': '#e10600',
-  'cc-grey': '#8b9bb4',
-  'cc-grey2': '#5a6b8c',   // texte tertiaire
-  'cc-light': '#bbc9dd',   // texte clair
-  'cc-faint': '#3a4560',   // texte très effacé
+        'cc-bg': '#0c0c0d',
+        'cc-card': '#151517',
+        'cc-border': '#2a2a2e',
+        'cc-cyan': '#ff5a1f',   // accent unique
+        'cc-red': '#ff5a1f',
+        'cc-grey': '#9a978f',
+        'cc-grey2': '#6f6d67',
+        'cc-light': '#d6d3cb',
+        'cc-faint': '#45443f',
       },
       fontFamily: {
-        racing: ["'Racing Sans One'", 'cursive'],
-        rajdhani: ["'Rajdhani'", 'sans-serif'],
+        racing: ["'Space Grotesk'", 'sans-serif'],
+        rajdhani: ["'Inter'", 'sans-serif'],
       },
     },
   },

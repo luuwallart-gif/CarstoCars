@@ -243,7 +243,7 @@ function Podium({ resultats }) {
   ];
 
   return (
-    <div className="mb-8 rounded-2xl bg-gradient-to-b from-cc-card to-cc-bg border border-cc-border p-6 md:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.4)] overflow-hidden">
+    <div className="mb-8 rounded-2xl bg-cc-card border border-cc-border p-6 md:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.4)] overflow-hidden">
       <div className="flex items-end justify-center gap-3 md:gap-6 flex-wrap md:flex-nowrap">
         {places.map(({ idx, hauteur, metal, label }, i) => {
           const r = resultats[idx];
@@ -406,41 +406,16 @@ export default function Courses() {
   return (
     <main className="font-rajdhani text-white min-h-screen overflow-x-hidden">
       {/* Barre du haut */}
-      <motion.header
-        initial={{ y: -60, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="px-4 md:px-10 py-5 bg-cc-bg/80 border-b-[3px] border-cc-cyan flex justify-between items-center flex-wrap gap-4 sticky top-0 z-[1000] backdrop-blur-lg"
-      >
-        <h1
-          className="font-racing m-0 text-2xl md:text-3xl tracking-wide"
-          style={{
-            background: "linear-gradient(90deg, #00d4ff, #e10600)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-          }}
-        >
-          CARSTOCARS
-        </h1>
-        <nav className="text-base md:text-lg font-semibold uppercase tracking-wide flex gap-5 md:gap-6">
-          {[
-            { href: "/", label: "Accueil" },
-            { href: "/auto", label: "Automobile" },
-            { href: "/sport", label: "Sport Auto" },
-            { href: "/courses", label: "Courses", active: true },
-          ].map((link) => (
-            <motion.a
-              key={link.href}
-              href={link.href}
-              whileHover={{ y: -2 }}
-              transition={{ duration: 0.2 }}
-              className={`no-underline relative ${link.active ? "text-cc-cyan" : "text-white hover:text-cc-cyan"}`}
-            >
-              {link.label}
-            </motion.a>
-          ))}
+      <header className="nav">
+        <a href="/" className="logo">cars<b>to</b>cars</a>
+        <nav className="nav-links">
+          <a href="/">Actualités</a>
+          <a href="/auto">Marques</a>
+          <a href="/sport">Sport auto</a>
+          <a href="/courses" className="on">Grands Prix</a>
+          <a href="/classement">Classement</a>
         </nav>
-      </motion.header>
+      </header>
 
       {/* Bandeau titre */}
       <motion.section
@@ -459,7 +434,7 @@ export default function Courses() {
           initial={{ width: 0 }}
           animate={{ width: 80 }}
           transition={{ duration: 0.8, delay: 0.3 }}
-          className="h-1 bg-gradient-to-r from-cc-cyan to-cc-red mx-auto mt-5 rounded-sm"
+          className="h-1 bg-cc-cyan mx-auto mt-5 rounded-sm"
         />
       </motion.section>
 
@@ -478,7 +453,7 @@ export default function Courses() {
             onClick={() => setSaison(an)}
             className={`px-5 py-2 rounded-full text-[15px] font-bold uppercase tracking-wide border-2 transition-colors ${
               saison === an
-                ? "bg-gradient-to-r from-cc-cyan to-cc-red border-transparent text-white"
+                ? "bg-cc-cyan border-transparent text-black"
                 : "bg-cc-bg border-cc-border text-cc-grey hover:text-white hover:border-cc-cyan"
             }`}
           >
@@ -578,7 +553,7 @@ export default function Courses() {
                     href={gpSelectionne.Circuit.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-gradient-to-r from-cc-cyan to-cc-red text-white no-underline text-base font-bold uppercase tracking-wide shadow-[0_8px_30px_rgba(0,212,255,0.3)] transition-shadow"
+                    className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-cc-cyan text-black no-underline text-base font-bold uppercase tracking-wide  transition-shadow"
                   >
                     🏁 Voir le tracé du circuit →
                   </motion.a>
@@ -681,11 +656,11 @@ export default function Courses() {
       </AnimatePresence>
 
       {/* Bas de page */}
-      <footer className="border-t border-cc-border px-4 md:px-10 py-6 text-cc-grey2 text-sm text-center">
-        © 2026 Carstocars — Passion automobile · Données{" "}
-        <a href="https://api.jolpi.ca" target="_blank" rel="noopener noreferrer" className="text-cc-cyan no-underline hover:underline">
-          Jolpica F1 API
-        </a>
+      <footer className="foot">
+        <div className="wrap">
+          <span>© 2026 Carstocars</span>
+          <span>Données : <a href="https://api.jolpi.ca" target="_blank" rel="noopener noreferrer">Jolpica F1 API</a></span>
+        </div>
       </footer>
     </main>
   );
