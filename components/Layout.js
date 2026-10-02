@@ -65,7 +65,7 @@ export default function Layout({ actif, titre, accroche, eyebrow, children }) {
       <footer className="foot">
         <div className="wrap">
           <span>© 2026 Carstocars</span>
-          <span>Données F1 : <a href="https://api.jolpi.ca" target="_blank" rel="noopener noreferrer">Jolpica</a></span>
+          <span>Passion automobile</span>
         </div>
       </footer>
     </>
