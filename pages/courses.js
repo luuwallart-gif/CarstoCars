@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
+import Layout from "../components/Layout";
 import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -177,7 +178,7 @@ function AvatarPilote({ driver, couleur, taille = 88 }) {
         width: taille, height: taille,
         border: `3px solid ${couleur}`,
         background: photo ? "#0b1220" : `linear-gradient(135deg, ${couleur}33, ${couleur}0d)`,
-        boxShadow: `0 0 20px ${couleur}55`,
+        
         fontSize: taille * 0.34,
         color: couleur,
       }}
@@ -243,13 +244,13 @@ function Podium({ resultats }) {
   ];
 
   return (
-    <div className="mb-8 rounded-2xl bg-cc-card border border-cc-border p-6 md:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.4)] overflow-hidden">
+    <div className="mb-8 rounded-[14px] bg-cc-card border border-cc-border p-6 md:p-8 overflow-hidden">
       <div className="flex items-end justify-center gap-3 md:gap-6 flex-wrap md:flex-nowrap">
         {places.map(({ idx, hauteur, metal, label }, i) => {
           const r = resultats[idx];
           if (!r) return null;
 
-          const couleur = COULEURS_ECURIES[r?.Constructor?.constructorId] || "#00d4ff";
+          const couleur = COULEURS_ECURIES[r?.Constructor?.constructorId] || "#ff5a1f";
           const m = METAUX[metal];
           const estActif = actif === idx;
 
@@ -270,7 +271,7 @@ function Podium({ resultats }) {
                 onClick={() => setActif(estActif ? null : idx)}
                 className="cursor-pointer mb-2"
                 style={{
-                  filter: `drop-shadow(0 0 ${estActif ? 20 : 10}px ${m.glow}${estActif ? "cc" : "77"})`,
+                  filter: `drop-shadow(0 6px 10px rgba(0,0,0,.5))`,
                 }}
               >
                 <TropheeF1 type={metal} taille={idx === 0 ? 92 : 74} id={`podium-${idx}`} />
@@ -302,7 +303,7 @@ function Podium({ resultats }) {
                 className="w-full rounded-t-lg relative flex items-start justify-center pt-3 cursor-pointer overflow-hidden"
                 style={{
                   background: `linear-gradient(180deg, ${m.mid} 0%, ${m.sombre} 100%)`,
-                  boxShadow: `inset 0 3px 0 ${m.clair}, 0 -2px 24px ${m.glow}44`,
+                  boxShadow: `inset 0 3px 0 ${m.clair}`,
                 }}
               >
                 <span
@@ -366,6 +367,15 @@ export default function Courses() {
   const [resultats, setResultats] = useState([]);
   const [chargementCourses, setChargementCourses] = useState(true);
   const [chargementResultats, setChargementResultats] = useState(false);
+  const [survol, setSurvol] = useState(null);
+  const [maintenant, setMaintenant] = useState(null);
+  const detailRef = useRef(null);
+
+  useEffect(() => {
+    setMaintenant(Date.now());
+    const t = setInterval(() => setMaintenant(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
 
   useEffect(() => {
     setChargementCourses(true);
@@ -403,265 +413,167 @@ export default function Courses() {
   const drapeauGp = loc?.country ? (DRAPEAUX[loc.country] || "🏁") : "🏁";
   const estAVenir = gpSelectionne?.date ? new Date(gpSelectionne.date) > new Date() : false;
 
+  const prochain = useMemo(
+    () => (maintenant ? courses.find((c) => new Date(`${c.date}T${c.time || "12:00:00Z"}`) > maintenant) : null),
+    [courses, maintenant]
+  );
+  const reste = prochain ? new Date(`${prochain.date}T${prochain.time || "12:00:00Z"}`) - maintenant : 0;
+  const j = Math.floor(reste / 864e5), h = Math.floor(reste / 36e5) % 24, mn = Math.floor(reste / 6e4) % 60, sec = Math.floor(reste / 1e3) % 60;
+  const nbPays = new Set(courses.map((c) => c.Circuit?.Location?.country)).size;
+  const faites = maintenant ? courses.filter((c) => new Date(c.date) < maintenant).length : 0;
+  const idx = gpSelectionne ? courses.findIndex((c) => c.round === gpSelectionne.round) : -1;
+
+  const choisir = (c) => {
+    setGpSelectionne(c);
+    setTimeout(() => detailRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 150);
+  };
+
   return (
-    <main className="font-rajdhani text-white min-h-screen overflow-x-hidden">
-      {/* Barre du haut */}
-      <header className="nav">
-        <a href="/" className="logo">cars<b>to</b>cars</a>
-        <nav className="nav-links">
-          <a href="/">Actualités</a>
-          <a href="/auto">Marques</a>
-          <a href="/sport">Sport auto</a>
-          <a href="/courses" className="on">Grands Prix</a>
-          <a href="/classement">Classement</a>
-        </nav>
-      </header>
-
-      {/* Bandeau titre */}
-      <motion.section
-        initial="hidden"
-        animate="visible"
-        variants={fadeInUp}
-        className="px-4 md:px-10 pt-12 md:pt-16 pb-8 text-center"
-      >
-        <h2 className="font-racing text-3xl md:text-5xl mt-0 mb-2.5 uppercase">
-          Les <span className="text-cc-red">Grands Prix</span>
-        </h2>
-        <p className="text-cc-grey text-base md:text-lg m-0">
-          Clique sur un point de la carte pour voir les résultats de la course
-        </p>
-        <motion.div
-          initial={{ width: 0 }}
-          animate={{ width: 80 }}
-          transition={{ duration: 0.8, delay: 0.3 }}
-          className="h-1 bg-cc-cyan mx-auto mt-5 rounded-sm"
-        />
-      </motion.section>
-
-      {/* Sélecteur de saison */}
-      <motion.section
-        initial="hidden"
-        animate="visible"
-        variants={fadeInUp}
-        className="px-4 md:px-10 pb-6 flex justify-center flex-wrap gap-3"
-      >
-        {SAISONS.map((an) => (
-          <motion.button
-            key={an}
-            whileHover={{ scale: 1.06 }}
-            whileTap={{ scale: 0.94 }}
-            onClick={() => setSaison(an)}
-            className={`px-5 py-2 rounded-full text-[15px] font-bold uppercase tracking-wide border-2 transition-colors ${
-              saison === an
-                ? "bg-cc-cyan border-transparent text-black"
-                : "bg-cc-bg border-cc-border text-cc-grey hover:text-white hover:border-cc-cyan"
-            }`}
-          >
-            {an}
-          </motion.button>
-        ))}
-      </motion.section>
-
-      {/* Carte du monde */}
-      <motion.section
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.2 }}
-        variants={fadeInUp}
-        className="px-4 md:px-10 pb-10 max-w-[1400px] mx-auto"
-      >
-        {chargementCourses ? (
-          <div className="h-[550px] flex items-center justify-center text-cc-grey bg-cc-card rounded-2xl border border-cc-border text-lg">
-            Chargement du calendrier {saison}...
-          </div>
-        ) : (
-          <CarteMonde
-            courses={courses}
-            gpSelect={gpSelectionne ? `${saison}-${gpSelectionne.round}` : null}
-            saison={saison}
-            onSelect={setGpSelectionne}
-            drapeaux={DRAPEAUX}
-          />
-        )}
-      </motion.section>
-
-      {/* Message si rien sélectionné */}
-      <AnimatePresence>
-        {!gpSelectionne && !chargementCourses && (
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="text-center text-cc-grey text-lg px-4 md:px-10 pb-16"
-          >
-            Sélectionne un Grand Prix sur la carte pour afficher le classement 🏁
-          </motion.p>
-        )}
-      </AnimatePresence>
-
-      {/* Détail du GP sélectionné */}
-      <AnimatePresence>
-        {gpSelectionne && (
-          <motion.section
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            transition={{ duration: 0.4 }}
-            className="px-4 md:px-10 pb-20 max-w-[1200px] mx-auto"
-          >
-            {/* En-tête du GP */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="bg-cc-card border border-cc-border rounded-2xl p-6 md:p-8 mb-8"
-            >
-              <div className="flex justify-between items-start flex-wrap gap-4">
-                <div>
-                  <h3 className="font-racing text-2xl md:text-3xl m-0 mb-2 flex items-center gap-3">
-                    <span className="text-3xl">{drapeauGp}</span>
-                    {gpSelectionne.raceName}
-                  </h3>
-                  <p className="text-cc-grey text-base m-0">
-                    {loc?.locality ? `${loc.locality}, ` : ""}{loc?.country || ""} • Round {gpSelectionne.round}
-                  </p>
-                  <p className="text-cc-grey2 text-sm mt-1 mb-0">
-                    {gpSelectionne.date
-                      ? new Date(gpSelectionne.date).toLocaleDateString("fr-FR", {
-                          day: "numeric", month: "long", year: "numeric",
-                        })
-                      : "—"}
-                  </p>
-                </div>
-
-                <motion.button
-                  whileHover={{ scale: 1.05, borderColor: "#e10600" }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setGpSelectionne(null)}
-                  className="px-5 py-2.5 rounded-full border-2 border-cc-border bg-cc-bg text-cc-grey text-[15px] font-bold font-rajdhani uppercase tracking-wide cursor-pointer hover:text-white transition-colors"
-                >
-                  ✕ Fermer
-                </motion.button>
-              </div>
-
-              {/* Liens circuit */}
-              <div className="flex gap-3 flex-wrap mt-5">
-                {gpSelectionne.Circuit?.url && (
-                  <motion.a
-                    whileHover={{ scale: 1.03, boxShadow: "0 12px 40px rgba(0,212,255,0.4)" }}
-                    whileTap={{ scale: 0.97 }}
-                    href={gpSelectionne.Circuit.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-cc-cyan text-black no-underline text-base font-bold uppercase tracking-wide  transition-shadow"
-                  >
-                    🏁 Voir le tracé du circuit →
-                  </motion.a>
-                )}
-                {gpSelectionne.url && (
-                  <motion.a
-                    whileHover={{ scale: 1.03, borderColor: "#00d4ff" }}
-                    whileTap={{ scale: 0.97 }}
-                    href={gpSelectionne.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full border-2 border-cc-border bg-cc-bg text-cc-cyan no-underline text-base font-bold uppercase tracking-wide transition-colors"
-                  >
-                    📖 Résumé du Grand Prix →
-                  </motion.a>
-                )}
-              </div>
-            </motion.div>
-
-            {/* Podium */}
-            {!chargementResultats && resultats.length >= 3 && (
-              <Podium resultats={resultats} />
-            )}
-
-            {/* Tableau des résultats */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="bg-cc-card border border-cc-border rounded-2xl overflow-hidden"
-            >
-              {chargementResultats ? (
-                <motion.p
-                  animate={{ opacity: [0.4, 1, 0.4] }}
-                  transition={{ duration: 1.2, repeat: Infinity }}
-                  className="text-center text-cc-grey text-lg p-12"
-                >
-                  Chargement des résultats...
-                </motion.p>
-              ) : resultats.length === 0 ? (
-                <p className="text-center text-cc-grey text-lg p-12">
-                  {estAVenir
-                    ? "Ce Grand Prix n'a pas encore eu lieu — reviens après la course ! 🏁"
-                    : "Résultats non disponibles pour ce Grand Prix 🏁"}
-                </p>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full border-collapse text-base">
-                    <thead>
-                      <tr className="bg-cc-bg">
-                        <th className={TH}>Pos</th>
-                        <th className={TH}>Pilote</th>
-                        <th className={TH}>Écurie</th>
-                        <th className={TH}>Grille</th>
-                        <th className={TH}>Temps / Statut</th>
-                        <th className={`${TH} !text-center`}>Pts</th>
-                      </tr>
-                    </thead>
-                    <motion.tbody
-                      initial="hidden"
-                      animate="visible"
-                      variants={staggerContainer}
-                    >
-                      {resultats.map((r) => {
-                        const couleur = COULEURS_ECURIES[r?.Constructor?.constructorId] || "#00d4ff";
-                        return (
-                          <motion.tr
-                            key={r.position}
-                            variants={tableRowVariant}
-                            className="border-b border-cc-border hover:bg-cc-bg/50 transition-colors"
-                          >
-                            <td className="px-4 py-3.5 font-bold text-lg">
-                              {r.position}
-                            </td>
-                            <td className="px-4 py-3.5">
-                              <NomPiloteHover driver={r.Driver} couleur={couleur} />
-                            </td>
-                            <td className="px-4 py-3.5">
-                              <span className="font-semibold" style={{ color: couleur }}>
-                                {r.Constructor?.name}
-                              </span>
-                            </td>
-                            <td className="px-4 py-3.5 text-cc-grey">{r.grid}</td>
-                            <td className="px-4 py-3.5 text-cc-grey">
-                              {r.Time?.time || r.status}
-                            </td>
-                            <td className="px-4 py-3.5 text-center font-bold">
-                              {r.points}
-                            </td>
-                          </motion.tr>
-                        );
-                      })}
-                    </motion.tbody>
-                  </table>
-                </div>
-              )}
-            </motion.div>
-          </motion.section>
-        )}
-      </AnimatePresence>
-
-      {/* Bas de page */}
-      <footer className="foot">
-        <div className="wrap">
-          <span>© 2026 Carstocars</span>
-          <span>Données : <a href="https://api.jolpi.ca" target="_blank" rel="noopener noreferrer">Jolpica F1 API</a></span>
+    <Layout
+      actif="courses"
+      eyebrow="Formule 1"
+      titre="Les Grands Prix, du monde entier."
+      accroche="Choisis une saison, explore le calendrier sur la carte et ouvre n'importe quelle course pour voir le podium et les résultats."
+    >
+      <div className="wrap">
+        {/* Saisons */}
+        <div className="bar">
+          {SAISONS.map((an) => (
+            <button key={an} className={`chip${saison === an ? " on" : ""}`} onClick={() => setSaison(an)}>{an}</button>
+          ))}
         </div>
-      </footer>
-    </main>
+
+        {/* Chiffres clés */}
+        <div className="stats">
+          <motion.div className="stat" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
+            <small>Grands Prix</small><strong>{courses.length}</strong>
+          </motion.div>
+          <motion.div className="stat" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}>
+            <small>Pays visités</small><strong>{nbPays}</strong>
+          </motion.div>
+          <motion.div className="stat" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 }}>
+            <small>Courses disputées</small><strong>{faites}/{courses.length}</strong>
+          </motion.div>
+          <motion.div className="stat" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.24 }}>
+            <small>{prochain ? `Prochain : ${prochain.Circuit.Location.locality}` : "Saison terminée"}</small>
+            <strong className="acc">{prochain ? `${j}j ${String(h).padStart(2, "0")}:${String(mn).padStart(2, "0")}:${String(sec).padStart(2, "0")}` : "—"}</strong>
+          </motion.div>
+        </div>
+
+        {/* Carte + calendrier */}
+        <div className="explorer">
+          {chargementCourses ? (
+            <div className="skeleton" style={{ height: 560 }} />
+          ) : (
+            <CarteMonde
+              courses={courses}
+              gpSelect={gpSelectionne ? `${saison}-${gpSelectionne.round}` : null}
+              survol={survol}
+              saison={saison}
+              onSelect={choisir}
+              drapeaux={DRAPEAUX}
+            />
+          )}
+          <div className="calendrier">
+            {courses.map((c, i) => {
+              const fait = maintenant && new Date(c.date) < maintenant;
+              const on = gpSelectionne?.round === c.round;
+              return (
+                <motion.button
+                  key={c.round}
+                  className={`cal-item${on ? " on" : ""}${fait ? " fait" : ""}`}
+                  initial={{ opacity: 0, x: 16 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: Math.min(i * 0.025, 0.6) }}
+                  onMouseEnter={() => setSurvol(c.round)}
+                  onMouseLeave={() => setSurvol(null)}
+                  onClick={() => choisir(c)}
+                >
+                  <span className="r">{String(c.round).padStart(2, "0")}</span>
+                  <span style={{ minWidth: 0 }}>
+                    <b>{DRAPEAUX[c.Circuit.Location.country] || ""} {c.raceName.replace(" Grand Prix", " GP")}</b>
+                    <small>{new Date(c.date).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })} · {c.Circuit.Location.locality}</small>
+                  </span>
+                  {prochain?.round === c.round && !on && <span className="badge">Prochain</span>}
+                </motion.button>
+              );
+            })}
+          </div>
+        </div>
+
+        {!gpSelectionne && !chargementCourses && (
+          <p className="empty">Clique sur un point de la carte ou une course du calendrier pour ouvrir le détail.</p>
+        )}
+
+        {/* Détail */}
+        <div ref={detailRef} style={{ scrollMarginTop: 90, paddingTop: 32 }}>
+          <AnimatePresence mode="wait">
+            {gpSelectionne && (
+              <motion.section
+                key={gpSelectionne.round + "-" + saison}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.4 }}
+              >
+                <div className="gp-head">
+                  <p className="eyebrow" style={{ margin: "0 0 8px" }}>Round {gpSelectionne.round} · {saison}</p>
+                  <h3>{drapeauGp} {gpSelectionne.raceName}</h3>
+                  <p>
+                    {loc?.locality ? `${loc.locality}, ` : ""}{loc?.country || ""} ·{" "}
+                    {gpSelectionne.date ? new Date(gpSelectionne.date).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }) : "—"}
+                  </p>
+                  <div className="nav-gp">
+                    <button className="chip" disabled={idx <= 0} onClick={() => choisir(courses[idx - 1])} style={{ opacity: idx <= 0 ? 0.4 : 1 }}>← Précédent</button>
+                    <button className="chip" disabled={idx >= courses.length - 1} onClick={() => choisir(courses[idx + 1])} style={{ opacity: idx >= courses.length - 1 ? 0.4 : 1 }}>Suivant →</button>
+                    {gpSelectionne.Circuit?.url && <a className="btn ghost" href={gpSelectionne.Circuit.url} target="_blank" rel="noopener noreferrer">Le circuit</a>}
+                    {gpSelectionne.url && <a className="btn ghost" href={gpSelectionne.url} target="_blank" rel="noopener noreferrer">Résumé</a>}
+                    <button className="chip" onClick={() => setGpSelectionne(null)}>Fermer</button>
+                  </div>
+                </div>
+
+                {!chargementResultats && resultats.length >= 3 && <Podium resultats={resultats} />}
+
+                <div className="panel">
+                  {chargementResultats ? (
+                    <div className="skeleton" style={{ height: 240 }} />
+                  ) : resultats.length === 0 ? (
+                    <p className="empty" style={{ padding: 32, margin: 0 }}>
+                      {estAVenir ? "Ce Grand Prix n'a pas encore eu lieu, reviens après la course." : "Résultats non disponibles pour ce Grand Prix."}
+                    </p>
+                  ) : (
+                    <table className="table">
+                      <thead>
+                        <tr><th>Pos</th><th>Pilote</th><th>Écurie</th><th className="num">Grille</th><th>Temps / statut</th><th className="num">Pts</th></tr>
+                      </thead>
+                      <motion.tbody initial="hidden" animate="visible" variants={staggerContainer}>
+                        {resultats.map((r) => {
+                          const couleur = COULEURS_ECURIES[r?.Constructor?.constructorId] || "#ff5a1f";
+                          const gain = parseInt(r.grid) - parseInt(r.position);
+                          return (
+                            <motion.tr key={r.position} variants={tableRowVariant}>
+                              <td className="pos">{r.position}</td>
+                              <td><NomPiloteHover driver={r.Driver} couleur={couleur} /></td>
+                              <td><span style={{ borderLeft: `3px solid ${couleur}`, paddingLeft: 8 }}>{r.Constructor?.name}</span></td>
+                              <td className="num" style={{ color: "var(--muted)" }}>
+                                {r.grid}{r.grid > 0 && gain !== 0 && !isNaN(gain) && (
+                                  <span style={{ color: gain > 0 ? "#5fd38d" : "#ff6b6b", marginLeft: 6, fontSize: 12 }}>{gain > 0 ? `▲${gain}` : `▼${-gain}`}</span>
+                                )}
+                              </td>
+                              <td style={{ color: "var(--muted)" }}>{r.Time?.time || r.status}</td>
+                              <td className="num"><b>{r.points}</b></td>
+                            </motion.tr>
+                          );
+                        })}
+                      </motion.tbody>
+                    </table>
+                  )}
+                </div>
+              </motion.section>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+    </Layout>
   );
 }

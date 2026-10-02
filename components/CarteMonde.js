@@ -1,13 +1,34 @@
-import { MapContainer, TileLayer, CircleMarker, Tooltip } from "react-leaflet";
+import { useEffect } from "react";
+import { MapContainer, TileLayer, CircleMarker, Marker, Tooltip, useMap } from "react-leaflet";
+import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
-export default function CarteMonde({ courses, gpSelect, saison, onSelect, drapeaux }) {
+const anneauPulse = L.divIcon({
+  className: "pulse-ring",
+  html: "<span></span><i></i>",
+  iconSize: [40, 40],
+  iconAnchor: [20, 20],
+});
+
+function Vol({ cible }) {
+  const map = useMap();
+  useEffect(() => {
+    if (cible) map.flyTo(cible, Math.max(map.getZoom(), 4), { duration: 1.2 });
+    else map.flyTo([25, 10], 2, { duration: 1 });
+  }, [cible, map]);
+  return null;
+}
+
+export default function CarteMonde({ courses, gpSelect, survol, saison, onSelect, drapeaux }) {
+  const pos = (c) => {
+    const l = c.Circuit?.Location;
+    return l?.lat && l?.long ? [parseFloat(l.lat), parseFloat(l.long)] : null;
+  };
+  const sel = courses.find((c) => `${saison}-${c.round}` === gpSelect);
+  const maintenant = new Date();
+
   return (
-    <div style={{
-      borderRadius: "14px",
-      overflow: "hidden",
-      border: "1px solid #2a2a2e",
-    }}>
+    <div className="carte-wrap">
       <MapContainer
         center={[25, 10]}
         zoom={2}
@@ -15,46 +36,44 @@ export default function CarteMonde({ courses, gpSelect, saison, onSelect, drapea
         maxZoom={10}
         scrollWheelZoom={true}
         worldCopyJump={true}
-        style={{ height: "550px", width: "100%", background: "#0a0a0a" }}
+        style={{ height: "100%", width: "100%", background: "#111113" }}
       >
         <TileLayer
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-          attribution='&copy; OpenStreetMap &copy; CARTO'
+          className="tuiles-sombres"
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         />
+        <Vol cible={sel ? pos(sel) : null} />
 
         {courses.map((c) => {
-          const loc = c.Circuit?.Location;
-          if (!loc?.lat || !loc?.long) return null;
-
+          const p = pos(c);
+          if (!p) return null;
           const cle = `${saison}-${c.round}`;
           const actif = gpSelect === cle;
-
+          const hover = survol === c.round;
+          const passee = new Date(c.date) < maintenant;
           return (
             <CircleMarker
               key={cle}
-              center={[parseFloat(loc.lat), parseFloat(loc.long)]}
-              radius={actif ? 12 : 8}
+              center={p}
+              radius={actif ? 11 : hover ? 10 : 7}
               pathOptions={{
                 color: "#0c0c0d",
                 weight: 2,
-                fillColor: actif ? "#f2efe9" : "#ff5a1f",
-                fillOpacity: 0.95,
+                fillColor: actif || hover ? "#f2efe9" : passee ? "#ff5a1f" : "#9a978f",
+                fillOpacity: 1,
               }}
-              eventHandlers={{
-                click: () => onSelect(c),
-              }}
+              eventHandlers={{ click: () => onSelect(c) }}
             >
               <Tooltip direction="top" offset={[0, -10]} opacity={1}>
-                <div style={{ fontWeight: "700", fontSize: "13px" }}>
-                  {drapeaux[loc.country] || "🏁"} {c.raceName}
-                </div>
-                <div style={{ fontSize: "11px", color: "#555" }}>
-                  {loc.locality} • R{c.round}
-                </div>
+                <b>{drapeaux[c.Circuit.Location.country] || ""} {c.raceName}</b>
+                <br />
+                {c.Circuit.Location.locality} · R{c.round}
               </Tooltip>
             </CircleMarker>
           );
         })}
+        {sel && pos(sel) && <Marker position={pos(sel)} icon={anneauPulse} interactive={false} />}
       </MapContainer>
     </div>
   );
