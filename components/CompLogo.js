@@ -29,12 +29,17 @@ export default function CompLogo({ id, hauteur = 22 }) {
       im.onerror = suite;
       im.src = `/logos/${id}.${ext}`;
     };
-    essayer("svg", () => essayer("png", () => {}));
+    essayer("svg", () => essayer("png", () => essayer("webp", () => {})));
     return () => { annule = true; };
   }, [id]);
 
   if (fichier) {
-    return <img src={fichier} alt={b.txt} style={{ height: hauteur, width: "auto", display: "block" }} />;
+    // Pastille claire : les logos officiels sont souvent noirs ou sur fond blanc
+    return (
+      <span style={{ display: "inline-flex", alignItems: "center", background: "#f2efe9", borderRadius: Math.max(4, hauteur * 0.18), padding: `${hauteur * 0.14}px ${hauteur * 0.3}px` }}>
+        <img src={fichier} alt={b.txt} style={{ height: hauteur, width: "auto", display: "block" }} />
+      </span>
+    );
   }
   return (
     <span
