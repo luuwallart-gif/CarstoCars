@@ -176,10 +176,10 @@ body {
 .marque-titre { font: 700 clamp(40px, 7vw, 84px) 'Space Grotesk', sans-serif; letter-spacing: -.04em; line-height: 1; margin: 0; }
 .marque-intro { max-width: 760px; margin-bottom: 48px; }
 .resume { color: #c9c6be; font-size: 16px; line-height: 1.7; margin: 0 0 16px; }
-.phare { display: grid; grid-template-columns: 1.3fr 1fr; gap: 36px; align-items: start; }
+.phare { display: grid; grid-template-columns: minmax(0, 480px) 1fr; gap: 36px; align-items: start; }
 @media (max-width: 860px) { .phare { grid-template-columns: 1fr; } .marque-tete { flex-direction: column; align-items: flex-start; } }
 .phare-nom { font: 700 clamp(26px, 3.5vw, 38px) 'Space Grotesk', sans-serif; letter-spacing: -.03em; margin: 0 0 14px; }
-.visuel { position: relative; aspect-ratio: 4/3; border-radius: 14px; overflow: hidden; background: #1c1c1f; user-select: none; }
+.visuel { position: relative; aspect-ratio: 16/10; border-radius: 14px; overflow: hidden; background: #1c1c1f; user-select: none; }
 .visuel img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .visuel.vide { display: flex; align-items: center; justify-content: center; background: #f2efe9; }
 .visuel.vide img { position: static; width: 40%; height: auto; object-fit: contain; }
