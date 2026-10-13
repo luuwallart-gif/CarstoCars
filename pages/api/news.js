@@ -10,6 +10,7 @@ const flux = [
   { source: "Motorsport F1", url: "https://fr.motorsport.com/rss/f1/news/" },
   { source: "Motorsport WRC", url: "https://fr.motorsport.com/rss/wrc/news/" },
   { source: "Motorsport WEC", url: "https://fr.motorsport.com/rss/wec/news/" },
+  { source: "Motorsport MotoGP", url: "https://fr.motorsport.com/rss/motogp/news/" },
   { source: "Motorsport FE", url: "https://fr.motorsport.com/rss/formula-e/news/" },
 ];
 

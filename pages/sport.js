@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import Layout, { Reveal } from "../components/Layout";
+import CompLogo from "../components/CompLogo";
 
 const COMPETITIONS = [
   { id: 'f1', nom: 'F1', mots: ['formule 1', 'formula 1', 'f1', 'grand prix'] },
@@ -9,6 +10,7 @@ const COMPETITIONS = [
   { id: 'wrc', nom: 'WRC', mots: ['wrc', 'rallye', 'rally'] },
   { id: 'gt', nom: 'GT World', mots: ['gt world', 'gt3', 'gt world challenge'] },
   { id: 'wec', nom: 'WEC', mots: ['wec', 'endurance', 'le mans', 'hypercar'] },
+  { id: 'motogp', nom: 'MotoGP', mots: ['motogp', 'moto gp', 'moto2', 'moto3', 'moto 2', 'moto 3'] },
   { id: 'fe', nom: 'Formule E', mots: ['formule e', 'formula e', 'formule-e'] },
 ];
 
@@ -35,11 +37,14 @@ export default function Sport() {
   });
 
   return (
-    <Layout actif="sport" eyebrow="Compétition" titre="Le sport auto, course après course." accroche="F1, WRC, Endurance, Formule E : choisis ta discipline.">
+    <Layout actif="sport" eyebrow="Compétition" logo={ongletActif} titre="Le sport auto, course après course." accroche="F1, WRC, Endurance, Formule E : choisis ta discipline.">
       <div className="wrap">
         <div className="bar">
           {COMPETITIONS.map((c) => (
-            <button key={c.id} className={`chip${ongletActif === c.id ? " on" : ""}`} onClick={() => setOngletActif(c.id)}>{c.nom}</button>
+            <button key={c.id} className={`chip${ongletActif === c.id ? " on" : ""}`} onClick={() => setOngletActif(c.id)} style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+              <CompLogo id={c.id} hauteur={18} />
+              {c.nom}
+            </button>
           ))}
         </div>
 

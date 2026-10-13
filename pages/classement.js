@@ -24,7 +24,7 @@ export default function Classement() {
   const max = Math.max(1, ...lignes.map((l) => l.pts));
 
   return (
-    <Layout actif="classement" eyebrow="Formule 1 · 2026" titre="Le classement de la saison." accroche="Pilotes et écuries, mis à jour après chaque Grand Prix.">
+    <Layout actif="classement" eyebrow="Formule 1 · 2026" logo="f1" titre="Le classement de la saison." accroche="Pilotes et écuries, mis à jour après chaque Grand Prix.">
       <div className="wrap">
         <div className="bar">
           <button className={`chip${vue === "pilotes" ? " on" : ""}`} onClick={() => setVue("pilotes")}>Pilotes</button>
