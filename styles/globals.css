@@ -156,3 +156,37 @@ body {
 .nav-gp { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
 .pulse-ring { position: relative; }
 .pulse-ring i { position: absolute; left: 12px; top: 12px; width: 16px; height: 16px; border-radius: 50%; background: #f2efe9; border: 2px solid #0c0c0d; }
+
+/* ---------- Page Marques ---------- */
+.marques { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 16px; }
+.marque { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px; cursor: default; transition: transform .3s cubic-bezier(.2,.8,.2,1), border-color .3s; }
+.marque:hover { transform: translateY(-5px); border-color: var(--accent); }
+.logo-tile { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; background: #f2efe9; border-radius: 10px; padding: 18px; margin-bottom: 12px; overflow: hidden; }
+.logo-tile img { max-width: 100%; max-height: 100%; object-fit: contain; transition: transform .4s cubic-bezier(.2,.8,.2,1); }
+.marque:hover .logo-tile img { transform: scale(1.12) rotate(-2deg); }
+.marque b { display: block; font: 600 15px 'Space Grotesk', sans-serif; }
+.marque span { font-size: 13px; color: var(--muted); }
+
+/* ---------- Page d'une marque ---------- */
+.marque { display: block; color: var(--text); text-decoration: none; }
+.retour { color: var(--muted); font-size: 14px; text-decoration: none; transition: color .2s; }
+.retour:hover { color: var(--accent); }
+.marque-tete { display: flex; align-items: center; gap: 24px; margin: 24px 0 20px; }
+.logo-tile.grand { width: 120px; height: 120px; aspect-ratio: auto; padding: 18px; margin: 0; flex-shrink: 0; }
+.marque-titre { font: 700 clamp(40px, 7vw, 84px) 'Space Grotesk', sans-serif; letter-spacing: -.04em; line-height: 1; margin: 0; }
+.marque-intro { max-width: 760px; margin-bottom: 48px; }
+.resume { color: #c9c6be; font-size: 16px; line-height: 1.7; margin: 0 0 16px; }
+.phare { display: grid; grid-template-columns: minmax(0, 480px) 1fr; gap: 36px; align-items: start; }
+@media (max-width: 860px) { .phare { grid-template-columns: 1fr; } .marque-tete { flex-direction: column; align-items: flex-start; } }
+.phare-nom { font: 700 clamp(26px, 3.5vw, 38px) 'Space Grotesk', sans-serif; letter-spacing: -.03em; margin: 0 0 14px; }
+.visuel { position: relative; aspect-ratio: 16/10; border-radius: 14px; overflow: hidden; background: #1c1c1f; user-select: none; }
+.visuel img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.visuel.vide { display: flex; align-items: center; justify-content: center; background: #f2efe9; }
+.visuel.vide img { position: static; width: 40%; height: auto; object-fit: contain; }
+.visuel .aide { position: absolute; left: 12px; bottom: 12px; font-size: 12px; padding: 5px 10px; border-radius: 999px; background: rgba(12,12,13,.75); color: var(--muted); pointer-events: none; }
+.vignettes { display: flex; gap: 10px; margin-top: 12px; overflow-x: auto; padding-bottom: 4px; }
+.vignettes button { flex: 0 0 96px; height: 68px; padding: 0; border: 2px solid transparent; border-radius: 10px; overflow: hidden; background: #1c1c1f; cursor: pointer; opacity: .6; transition: opacity .2s, border-color .2s, transform .2s; }
+.vignettes button:hover { opacity: 1; transform: translateY(-2px); }
+.vignettes button.on { opacity: 1; border-color: var(--accent); }
+.vignettes img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.logo-tile.petit { width: 72px; height: 72px; aspect-ratio: auto; padding: 10px; margin: 0; }
