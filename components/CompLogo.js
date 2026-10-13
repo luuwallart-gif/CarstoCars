@@ -29,12 +29,21 @@ export default function CompLogo({ id, hauteur = 22 }) {
       im.onerror = suite;
       im.src = `/logos/${id}.${ext}`;
     };
-    essayer("svg", () => essayer("png", () => {}));
+    essayer("svg", () => essayer("png", () => essayer("webp", () => {})));
     return () => { annule = true; };
   }, [id]);
 
   if (fichier) {
-    return <img src={fichier} alt={b.txt} style={{ height: hauteur, width: "auto", display: "block" }} />;
+    // Le logo Formule E a déjà son fond bleu
+    if (id === "fe") {
+      return <img src={fichier} alt={b.txt} style={{ height: hauteur * 1.3, width: "auto", display: "block", borderRadius: hauteur * 0.2 }} />;
+    }
+    // Pastille claire : les logos officiels sont souvent noirs ou sur fond blanc
+    return (
+      <span style={{ display: "inline-flex", alignItems: "center", background: "#f2efe9", borderRadius: Math.max(4, hauteur * 0.18), padding: `${hauteur * 0.14}px ${hauteur * 0.3}px` }}>
+        <img src={fichier} alt={b.txt} style={{ height: hauteur, width: "auto", display: "block" }} />
+      </span>
+    );
   }
   return (
     <span
