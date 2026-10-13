@@ -1,4 +1,5 @@
 import Head from "next/head";
+import CompLogo from "./CompLogo";
 import { motion, useScroll, useSpring, useReducedMotion } from "framer-motion";
 
 const LIENS = [
@@ -25,7 +26,7 @@ export function Reveal({ children, delay = 0, y = 24, className }) {
   );
 }
 
-export default function Layout({ actif, titre, accroche, eyebrow, children }) {
+export default function Layout({ actif, titre, accroche, eyebrow, logo, children }) {
   const { scrollYProgress } = useScroll();
   const echelle = useSpring(scrollYProgress, { stiffness: 120, damping: 24 });
 
@@ -54,7 +55,12 @@ export default function Layout({ actif, titre, accroche, eyebrow, children }) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: [0.2, 0.8, 0.2, 1] }}
             >
-              {eyebrow && <p className="eyebrow">{eyebrow}</p>}
+              {(eyebrow || logo) && (
+                <p className="eyebrow" style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  {logo && <CompLogo id={logo} hauteur={26} />}
+                  {eyebrow}
+                </p>
+              )}
               <h2>{titre}</h2>
               {accroche && <p>{accroche}</p>}
             </motion.div>
