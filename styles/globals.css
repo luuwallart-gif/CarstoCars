@@ -167,22 +167,26 @@ body {
 .marque b { display: block; font: 600 15px 'Space Grotesk', sans-serif; }
 .marque span { font-size: 13px; color: var(--muted); }
 
-/* ---------- Fiche marque ---------- */
-.marque { cursor: pointer; }
-.fond-fiche { position: fixed; inset: 0; z-index: 3000; background: rgba(5,5,6,.78); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
-.fiche { position: relative; width: min(1000px, 100%); max-height: 92vh; overflow-y: auto; background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 24px; }
-.fiche .x { position: absolute; top: 14px; right: 14px; z-index: 2; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); background: var(--bg); color: var(--text); cursor: pointer; transition: border-color .2s, transform .2s; }
-.fiche .x:hover { border-color: var(--accent); transform: rotate(90deg); }
-.fiche-grille { display: grid; grid-template-columns: 1.15fr 1fr; gap: 28px; }
-@media (max-width: 800px) { .fiche-grille { grid-template-columns: 1fr; } }
-.visuel { position: relative; aspect-ratio: 4/3; border-radius: 12px; overflow: hidden; background: #1c1c1f; user-select: none; }
+/* ---------- Page d'une marque ---------- */
+.marque { display: block; color: var(--text); text-decoration: none; }
+.retour { color: var(--muted); font-size: 14px; text-decoration: none; transition: color .2s; }
+.retour:hover { color: var(--accent); }
+.marque-tete { display: flex; align-items: center; gap: 24px; margin: 24px 0 20px; }
+.logo-tile.grand { width: 120px; height: 120px; aspect-ratio: auto; padding: 18px; margin: 0; flex-shrink: 0; }
+.marque-titre { font: 700 clamp(40px, 7vw, 84px) 'Space Grotesk', sans-serif; letter-spacing: -.04em; line-height: 1; margin: 0; }
+.marque-intro { max-width: 760px; margin-bottom: 48px; }
+.resume { color: #c9c6be; font-size: 16px; line-height: 1.7; margin: 0 0 16px; }
+.phare { display: grid; grid-template-columns: 1.3fr 1fr; gap: 36px; align-items: start; }
+@media (max-width: 860px) { .phare { grid-template-columns: 1fr; } .marque-tete { flex-direction: column; align-items: flex-start; } }
+.phare-nom { font: 700 clamp(26px, 3.5vw, 38px) 'Space Grotesk', sans-serif; letter-spacing: -.03em; margin: 0 0 14px; }
+.visuel { position: relative; aspect-ratio: 4/3; border-radius: 14px; overflow: hidden; background: #1c1c1f; user-select: none; }
 .visuel img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .visuel.vide { display: flex; align-items: center; justify-content: center; background: #f2efe9; }
-.visuel.vide img { position: static; width: 45%; height: auto; object-fit: contain; }
+.visuel.vide img { position: static; width: 40%; height: auto; object-fit: contain; }
 .visuel .aide { position: absolute; left: 12px; bottom: 12px; font-size: 12px; padding: 5px 10px; border-radius: 999px; background: rgba(12,12,13,.75); color: var(--muted); pointer-events: none; }
-.legende { margin: 10px 2px 0; color: var(--muted); font-size: 14px; }
-.legende b { color: var(--text); }
-.fiche-texte h3 { font: 700 clamp(30px, 4vw, 44px) 'Space Grotesk', sans-serif; letter-spacing: -.03em; margin: 0 0 12px; }
-.fiche-texte .resume { color: #c9c6be; font-size: 15px; line-height: 1.65; margin: 0 0 14px; }
+.vignettes { display: flex; gap: 10px; margin-top: 12px; overflow-x: auto; padding-bottom: 4px; }
+.vignettes button { flex: 0 0 96px; height: 68px; padding: 0; border: 2px solid transparent; border-radius: 10px; overflow: hidden; background: #1c1c1f; cursor: pointer; opacity: .6; transition: opacity .2s, border-color .2s, transform .2s; }
+.vignettes button:hover { opacity: 1; transform: translateY(-2px); }
+.vignettes button.on { opacity: 1; border-color: var(--accent); }
+.vignettes img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .logo-tile.petit { width: 72px; height: 72px; aspect-ratio: auto; padding: 10px; margin: 0; }
-.nav-fiche { display: flex; gap: 10px; margin-top: 22px; }

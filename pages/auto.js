@@ -1,7 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Layout from "../components/Layout";
-import FicheMarque from "../components/FicheMarque";
 import { MARQUES } from "../data/marques";
 
 const PAYS = ["Toutes", ...new Set(MARQUES.map((m) => m.pays))];
@@ -9,7 +8,6 @@ const PAYS = ["Toutes", ...new Set(MARQUES.map((m) => m.pays))];
 export default function Auto() {
   const [pays, setPays] = useState("Toutes");
   const [q, setQ] = useState("");
-  const [choix, setChoix] = useState(null);
 
   const liste = useMemo(
     () =>
@@ -39,11 +37,11 @@ export default function Auto() {
         <motion.div layout className="marques">
           <AnimatePresence mode="popLayout">
             {liste.map((m) => (
-              <motion.div
+              <motion.a
                 layout
                 key={m.nom}
+                href={`/auto/${m.slug}`}
                 className="marque"
-                onClick={() => setChoix(m.nom)}
                 initial={{ opacity: 0, scale: 0.92 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.92 }}
@@ -52,18 +50,10 @@ export default function Auto() {
                 <div className="logo-tile"><img src={m.logo} alt={m.nom} loading="lazy" /></div>
                 <b>{m.nom}</b>
                 <span>{m.pays}</span>
-              </motion.div>
+              </motion.a>
             ))}
           </AnimatePresence>
         </motion.div>
-        <AnimatePresence>
-          {choix && (() => {
-            const i = liste.findIndex((m) => m.nom === choix);
-            const aller = (d) => setChoix(liste[(i + d + liste.length) % liste.length].nom);
-            const m = liste[i] || MARQUES.find((x) => x.nom === choix);
-            return <FicheMarque key="fiche" marque={m} onFermer={() => setChoix(null)} onPrecedent={() => aller(-1)} onSuivant={() => aller(1)} />;
-          })()}
-        </AnimatePresence>
         {liste.length === 0 && <p className="empty">Aucune marque ne correspond.</p>}
       </div>
     </Layout>
