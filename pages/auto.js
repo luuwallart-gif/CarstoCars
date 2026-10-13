@@ -1,38 +1,59 @@
-import { useState } from "react";
-import Layout, { Reveal } from "../components/Layout";
+import { useState, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import Layout from "../components/Layout";
+import { MARQUES } from "../data/marques";
 
-const marques = [
-  { nom: "Ferrari", pays: "Italie", logo: "https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=800" },
-  { nom: "Porsche", pays: "Allemagne", logo: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800" },
-  { nom: "Mercedes", pays: "Allemagne", logo: "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=800" },
-  { nom: "BMW", pays: "Allemagne", logo: "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800" },
-  { nom: "Bugatti", pays: "France", logo: "https://images.unsplash.com/photo-1544829099-b9a0c07fad1a?w=800" },
-  { nom: "Lamborghini", pays: "Italie", logo: "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=800" },
-];
-const pays = ["Tous", ...new Set(marques.map((m) => m.pays))];
+const PAYS = ["Toutes", ...new Set(MARQUES.map((m) => m.pays))];
 
 export default function Auto() {
-  const [filtre, setFiltre] = useState("Tous");
-  const liste = marques.filter((m) => filtre === "Tous" || m.pays === filtre);
+  const [pays, setPays] = useState("Toutes");
+  const [q, setQ] = useState("");
+
+  const liste = useMemo(
+    () =>
+      MARQUES.filter(
+        (m) => (pays === "Toutes" || m.pays === pays) && m.nom.toLowerCase().includes(q.toLowerCase())
+      ).sort((a, b) => a.nom.localeCompare(b.nom, "fr")),
+    [pays, q]
+  );
 
   return (
-    <Layout actif="auto" eyebrow="Constructeurs" titre="Les marques qui font rêver." accroche="Passe d'un pays à l'autre et explore les constructeurs mythiques.">
+    <Layout
+      actif="auto"
+      eyebrow={`${MARQUES.length} constructeurs`}
+      titre="Toutes les marques."
+      accroche="Des sportives italiennes aux électriques chinoises : filtre par pays ou cherche ta marque."
+    >
       <div className="wrap">
         <div className="bar">
-          {pays.map((p) => (
-            <button key={p} className={`chip${filtre === p ? " on" : ""}`} onClick={() => setFiltre(p)}>{p}</button>
+          {PAYS.map((p) => (
+            <button key={p} className={`chip${pays === p ? " on" : ""}`} onClick={() => setPays(p)}>{p}</button>
           ))}
+          <input className="search" placeholder="Rechercher une marque" value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
-        <div className="grid">
-          {liste.map((m, i) => (
-            <Reveal key={m.nom} delay={i * 0.05}>
-              <div className="brand">
-                <img src={m.logo} alt={m.nom} loading="lazy" />
-                <div className="meta"><h3>{m.nom}</h3><span>{m.pays}</span></div>
-              </div>
-            </Reveal>
-          ))}
-        </div>
+
+        <p className="empty" style={{ padding: "0 0 20px" }}>{liste.length} marque{liste.length > 1 ? "s" : ""}</p>
+
+        <motion.div layout className="marques">
+          <AnimatePresence mode="popLayout">
+            {liste.map((m) => (
+              <motion.div
+                layout
+                key={m.nom}
+                className="marque"
+                initial={{ opacity: 0, scale: 0.92 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.92 }}
+                transition={{ duration: 0.25 }}
+              >
+                <div className="logo-tile"><img src={m.logo} alt={m.nom} loading="lazy" /></div>
+                <b>{m.nom}</b>
+                <span>{m.pays}</span>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.div>
+        {liste.length === 0 && <p className="empty">Aucune marque ne correspond.</p>}
       </div>
     </Layout>
   );
