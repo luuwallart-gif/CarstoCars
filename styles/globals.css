@@ -277,3 +277,23 @@ html, body { overflow-x: clip; }
   .chap-num { right: 12px; opacity: .8; }
   .bandeau { padding: 14px 0; }
 }
+
+
+/* ---------- Voiture 3D sur le côté ---------- */
+.voiture3d { position: absolute; top: 0; bottom: 0; right: 0; width: 62%; z-index: 1; cursor: grab; touch-action: pan-y; }
+.voiture3d:active { cursor: grabbing; }
+.voiture3d canvas { display: block; }
+.voiture-etiquette { position: absolute; right: clamp(20px, 6vw, 90px); bottom: 12%; z-index: 2; text-align: right; pointer-events: none; }
+.voiture-etiquette b { display: block; font: 400 clamp(18px, 2vw, 26px) 'Archivo Black', sans-serif; text-transform: uppercase; letter-spacing: .02em; }
+.voiture-etiquette span { font-size: 12px; color: var(--muted); letter-spacing: .12em; text-transform: uppercase; }
+.scene-textes { z-index: 2; }
+.chap { right: 50%; padding-right: 0; }
+.chap-titre { font-size: clamp(36px, 6.4vw, 96px); max-width: 9ch; }
+.chap-num { right: auto; left: clamp(20px, 15vw, 240px); bottom: -20px; }
+@media (max-width: 760px) {
+  .voiture3d { width: 100%; height: 48%; bottom: auto; }
+  .chap { right: 0; padding: 0 20px; bottom: 15%; }
+  .chap-titre { max-width: 10ch; font-size: clamp(34px, 11vw, 56px); }
+  .voiture-etiquette { right: 20px; top: 12px; bottom: auto; }
+  .chap-num { left: auto; right: 12px; }
+}

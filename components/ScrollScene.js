@@ -1,6 +1,8 @@
 import { useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import { motion, useScroll, useTransform, useMotionValueEvent } from "framer-motion";
-import ParticleCar from "./ParticleCar";
+const Voitures3D = dynamic(() => import("./Voitures3D"), { ssr: false });
+const NOMS_VOITURES = ["Formule 1", "WRC", "GT3", "Hypercar WEC"];
 
 const CHAPITRES = [
   { id: "actus", nom: "Actualités", kicker: "Le quotidien de l'auto", titre: "Tout ce qui roule.", texte: "Essais, nouveautés et infos des meilleures rédactions, au même endroit.", lien: "#actus", bouton: "Lire les actus" },
@@ -56,7 +58,7 @@ export default function ScrollScene() {
     <section ref={ref} className="scene" style={{ height: `${n * 100}vh` }}>
       <div className="scene-fixe">
         <motion.div className="scene-lueur" style={{ background: fond }} />
-        <ParticleCar progress={scrollYProgress} chapitres={n} />
+        <Voitures3D progress={scrollYProgress} />
         <div className="scene-grain" />
 
         <nav className="scene-nav" aria-label="Chapitres">
@@ -72,6 +74,11 @@ export default function ScrollScene() {
           {CHAPITRES.map((c, i) => (
             <Chapitre key={c.id} i={i} n={n} progress={scrollYProgress} c={c} />
           ))}
+        </div>
+
+        <div className="voiture-etiquette">
+          <motion.b key={actif} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>{NOMS_VOITURES[actif]}</motion.b>
+          <span>Glisse pour la faire tourner</span>
         </div>
 
         <motion.div className="defiler" animate={{ opacity: debut ? 1 : 0 }}>
