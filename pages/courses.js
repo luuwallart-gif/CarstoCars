@@ -191,8 +191,8 @@ function CartePodium({ r, rang, delai }) {
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: delai, ease: [0.2, 0.8, 0.2, 1] }}
-      style={{ perspective: 900, order: rang === 1 ? 0 : rang === 0 ? 1 : 2, marginTop: rang === 0 ? 0 : rang === 1 ? 28 : 56 }}
-      className="flex-1 min-w-[260px]"
+      style={{ perspective: 900 }}
+      className={`flex-1 min-w-[min(260px,100%)] ${["md:order-1 md:mt-0", "md:order-0 md:mt-7", "md:order-2 md:mt-14"][rang]}`}
     >
       <motion.div
         onMouseMove={bouger}
