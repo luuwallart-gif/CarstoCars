@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import Head from "next/head";
 import CompLogo from "./CompLogo";
 import { motion, useScroll, useSpring, useReducedMotion } from "framer-motion";
@@ -29,6 +30,13 @@ export function Reveal({ children, delay = 0, y = 24, className }) {
 export default function Layout({ actif, titre, accroche, eyebrow, logo, children }) {
   const { scrollYProgress } = useScroll();
   const echelle = useSpring(scrollYProgress, { stiffness: 120, damping: 24 });
+  const [menu, setMenu] = useState(false);
+
+  useEffect(() => {
+    const fermer = (e) => e.key === "Escape" && setMenu(false);
+    window.addEventListener("keydown", fermer);
+    return () => window.removeEventListener("keydown", fermer);
+  }, []);
 
 
   return (
@@ -41,7 +49,10 @@ export default function Layout({ actif, titre, accroche, eyebrow, logo, children
       <motion.div className="progress" style={{ scaleX: echelle }} />
       <header className="nav">
         <a href="/" className="logo">cars<b>to</b>cars</a>
-        <nav className="nav-links">
+        <button className={`burger${menu ? " ouvert" : ""}`} aria-label="Menu" aria-expanded={menu} onClick={() => setMenu(!menu)}>
+          <span /><span /><span />
+        </button>
+        <nav className={`nav-links${menu ? " ouvert" : ""}`}>
           {LIENS.map((l) => (
             <a key={l.id} href={l.href} className={actif === l.id ? "on" : ""}>{l.label}</a>
           ))}
