@@ -1,5 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import Layout, { Reveal } from "../components/Layout";
+import ScrollScene from "../components/ScrollScene";
+import Bandeau from "../components/Bandeau";
 
 function Carte({ a, grand }) {
   return (
@@ -40,13 +42,13 @@ export default function Home() {
   const [une, ...reste] = liste;
 
   return (
-    <Layout
-      actif="accueil"
-      eyebrow="Actualité automobile"
-      titre="Tout ce qui roule, en direct."
-      accroche="Essais, nouveautés, sport auto : les dernières infos des meilleures rédactions, au même endroit."
-    >
-      <div className="wrap">
+    <Layout actif="accueil" titre="">
+      <ScrollScene />
+      <Bandeau mots={["Formule 1", "MotoGP", "WEC", "WRC", "Formule E", "GT World", "F2", "F3"]} />
+
+      <div className="wrap" id="actus" style={{ paddingTop: 72 }}>
+        <p className="eyebrow">Actualité automobile</p>
+        <h2 className="titre-section">Les dernières infos.</h2>
         <div className="bar">
           {sources.map((s) => (
             <button key={s} className={`chip${source === s ? " on" : ""}`} onClick={() => setSource(s)}>{s}</button>
@@ -60,9 +62,9 @@ export default function Home() {
         {!chargement && liste.length === 0 && <p className="empty">Aucun article ne correspond.</p>}
 
         {une && <Reveal><Carte a={une} grand /></Reveal>}
-        <div className="grid">
+        <div className="grid" style={{ marginTop: 20 }}>
           {reste.map((a, i) => (
-            <Reveal key={a.lien || i} delay={(i % 3) * 0.06}><Carte a={a} /></Reveal>
+            <Reveal key={a.lien || i} delay={(i % 3) * 0.08}><Carte a={a} /></Reveal>
           ))}
         </div>
       </div>
