@@ -253,7 +253,7 @@ export const VOITURES = [
 ];
 
 /* ---------- scène ---------- */
-function Rig({ progress, glisse }) {
+function Rig({ progress, glisse, ignorer }) {
   const groupes = useRef([]);
   const lacet = useRef(0);
   const n = VOITURES.length;
@@ -271,6 +271,7 @@ function Rig({ progress, glisse }) {
     VOITURES.forEach((_, i) => {
       const grp = groupes.current[i];
       if (!grp) return;
+      if (ignorer.includes(VOITURES[i].id)) { grp.visible = false; return; }
       let t = p - (i + 0.5); // -0.5..+0.5 : de l'entrée à la sortie de son chapitre
       if (i === 0) t = Math.max(t, -0.3);
       if (i === n - 1) t = Math.min(t, 0.3);
@@ -294,7 +295,7 @@ function Rig({ progress, glisse }) {
   );
 }
 
-export default function Voitures3D({ progress }) {
+export default function Voitures3D({ progress, ignorer = [] }) {
   const glisse = useRef({ actif: false, x: 0, angle: 0, vitesse: 0 });
 
   const bas = (e) => { const g = glisse.current; g.actif = true; g.x = e.clientX; g.vitesse = 0; e.currentTarget.setPointerCapture?.(e.pointerId); };
@@ -318,7 +319,7 @@ export default function Voitures3D({ progress }) {
           <Lightformer form="rect" intensity={2} position={[7, 1.5, -3]} scale={[8, 3, 1]} rotation-y={-Math.PI / 2} color="#ff9a6a" />
           <Lightformer form="ring" intensity={2} position={[0, 3, -8]} scale={6} color="#ffffff" />
         </Environment>
-        <Rig progress={progress} glisse={glisse} />
+        <Rig progress={progress} glisse={glisse} ignorer={ignorer} />
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.001, 0]}>
           <ringGeometry args={[2.9, 2.94, 96]} />
           <meshBasicMaterial color="#ff5a1f" transparent opacity={0.55} />
