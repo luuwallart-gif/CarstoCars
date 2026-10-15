@@ -1,3 +1,0 @@
-Dépose ici les images de voitures (fond transparent) : f1.png, wrc.png, gt3.png, wec.png (.webp accepté).
-Quand une image existe, elle remplace le modèle 3D de ce chapitre sur l'accueil.
-Ordre des chapitres : f1, wrc, gt3, wec.
