@@ -1,7 +1,5 @@
-import { useRef, useState, useEffect } from "react";
-import dynamic from "next/dynamic";
+import { useRef, useState } from "react";
 import { motion, useScroll, useTransform, useMotionValueEvent } from "framer-motion";
-const Voitures3D = dynamic(() => import("./Voitures3D"), { ssr: false });
 import VoitureImage from "./VoitureImage";
 const NOMS_VOITURES = ["Formule 1", "WRC", "GT3", "Hypercar WEC"];
 const IDS_VOITURES = ["f1", "wrc", "gt3", "wec"];
@@ -40,25 +38,6 @@ export default function ScrollScene() {
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
   const [actif, setActif] = useState(0);
   const [debut, setDebut] = useState(true);
-  const [images, setImages] = useState({}); // id -> url de l'image, si elle existe
-
-  // Cherche /voitures/<id>.png|webp|jpg : sinon on garde le modèle 3D
-  useEffect(() => {
-    let annule = false;
-    IDS_VOITURES.forEach((id) => {
-      const essayer = (exts) => {
-        if (!exts.length) return;
-        const url = `/voitures/${id}.${exts[0]}`;
-        const im = new Image();
-        im.onload = () => !annule && setImages((o) => ({ ...o, [id]: url }));
-        im.onerror = () => essayer(exts.slice(1));
-        im.src = url;
-      };
-      essayer(["png", "webp", "avif"]);
-    });
-    return () => { annule = true; };
-  }, []);
-
   useMotionValueEvent(scrollYProgress, "change", (p) => {
     setActif(Math.min(n - 1, Math.floor(p * n + 0.02)));
     setDebut(p < 0.04);
@@ -78,9 +57,8 @@ export default function ScrollScene() {
     <section ref={ref} className="scene" style={{ height: `${n * 100}vh` }}>
       <div className="scene-fixe">
         <motion.div className="scene-lueur" style={{ background: fond }} />
-        {IDS_VOITURES.some((id) => !images[id]) && <Voitures3D progress={scrollYProgress} ignorer={IDS_VOITURES.filter((id) => images[id])} />}
-        {IDS_VOITURES.map((id, i) => images[id] && (
-          <VoitureImage key={id} i={i} n={n} progress={scrollYProgress} src={images[id]} nom={NOMS_VOITURES[i]} />
+        {IDS_VOITURES.map((id, i) => (
+          <VoitureImage key={id} i={i} n={n} progress={scrollYProgress} src={`/voitures/${id}.webp`} nom={NOMS_VOITURES[i]} />
         ))}
         <div className="scene-grain" />
 
@@ -101,7 +79,7 @@ export default function ScrollScene() {
 
         <div className="voiture-etiquette">
           <motion.b key={actif} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>{NOMS_VOITURES[actif]}</motion.b>
-          <span>{images[IDS_VOITURES[actif]] ? "Survole pour l'incliner" : "Glisse pour la faire tourner"}</span>
+          <span>Survole pour l'incliner</span>
         </div>
 
         <motion.div className="defiler" animate={{ opacity: debut ? 1 : 0 }}>
