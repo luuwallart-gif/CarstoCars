@@ -11,19 +11,21 @@ const LIENS = [
   { href: "/classement", label: "Classement", id: "classement" },
 ];
 
-export function Reveal({ children, delay = 0, y = 24, className }) {
+export function Reveal({ children, delay = 0, y = 40, className }) {
   const reduit = useReducedMotion();
   return (
-    <motion.div
-      className={className}
-      style={{ height: "100%" }}
-      initial={reduit ? false : { opacity: 0, y }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.55, delay, ease: [0.2, 0.8, 0.2, 1] }}
-    >
-      {children}
-    </motion.div>
+    <div style={{ perspective: 1100, height: "100%" }}>
+      <motion.div
+        className={className}
+        style={{ height: "100%", transformOrigin: "50% 100%" }}
+        initial={reduit ? false : { opacity: 0, y, rotateX: 16, scale: 0.95 }}
+        whileInView={{ opacity: 1, y: 0, rotateX: 0, scale: 1 }}
+        viewport={{ once: true, margin: "-50px" }}
+        transition={{ duration: 0.8, delay, ease: [0.2, 0.8, 0.2, 1] }}
+      >
+        {children}
+      </motion.div>
+    </div>
   );
 }
 
