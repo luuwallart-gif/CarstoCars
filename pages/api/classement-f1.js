@@ -6,8 +6,8 @@ export default async function handler(req, res) {
 
     // On appelle les 2 classements en même temps (plus rapide !)
     const [reponsePilotes, reponseEcuries] = await Promise.all([
-      fetch(`http://api.jolpi.ca/ergast/f1/${saison}/driverStandings/`),
-      fetch(`http://api.jolpi.ca/ergast/f1/${saison}/constructorStandings/`),
+      fetch(`https://api.jolpi.ca/ergast/f1/${saison}/driverStandings/`),
+      fetch(`https://api.jolpi.ca/ergast/f1/${saison}/constructorStandings/`),
     ]);
 
     const donneesPilotes = await reponsePilotes.json();
@@ -19,6 +19,8 @@ export default async function handler(req, res) {
     const ecuries =
       donneesEcuries.MRData.StandingsTable.StandingsLists[0]?.ConstructorStandings || [];
 
+    // Les classements ne changent qu'après une course : on peut les garder en cache
+    res.setHeader("Cache-Control", "public, s-maxage=600, stale-while-revalidate=3600");
     // On renvoie tout au site
     res.status(200).json({ pilotes, ecuries, saison });
   } catch (erreur) {

@@ -37,7 +37,8 @@ export default function Sport() {
   });
 
   return (
-    <Layout actif="sport" eyebrow="Compétition" logo={ongletActif} titre="Le sport auto, course après course." accroche="F1, WRC, Endurance, Formule E : choisis ta discipline.">
+    <Layout actif="sport" eyebrow="Compétition" logo={ongletActif} titre="Le sport auto, course après course."
+      seo={{ titre: "Sport auto : F1, WEC, WRC, MotoGP, Formule E", description: "Actualités et classements des principales disciplines du sport automobile : F1, F2, F3, WRC, WEC, GT, Formule E et MotoGP." }} accroche="F1, WRC, Endurance, Formule E : choisis ta discipline.">
       <div className="wrap">
         <div className="bar">
           {COMPETITIONS.map((c) => (

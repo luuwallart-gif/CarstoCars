@@ -345,6 +345,7 @@ export default function Courses() {
       eyebrow="Formule 1"
       logo="f1"
       titre="Les Grands Prix, du monde entier."
+      seo={{ titre: "Grands Prix de F1 : calendrier, carte et résultats", description: "Carte interactive des Grands Prix de Formule 1 depuis 2015 : calendrier, podium et résultats de chaque course." }}
       accroche="Choisis une saison, explore le calendrier sur la carte et ouvre n'importe quelle course pour voir le podium et les résultats."
     >
       <div className="wrap">

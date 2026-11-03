@@ -1,10 +1,13 @@
 import { useState, useEffect } from "react";
-import Head from "next/head";
+import { useRouter } from "next/router";
+import Seo from "./Seo";
+import config from "../site.config";
 import CompLogo from "./CompLogo";
 import { motion, useScroll, useSpring, useReducedMotion } from "framer-motion";
 
 const LIENS = [
-  { href: "/", label: "Actualités", id: "accueil" },
+  { href: "/", label: "Accueil", id: "accueil" },
+  { href: "/actus", label: "Analyses", id: "actus" },
   { href: "/auto", label: "Marques", id: "auto" },
   { href: "/sport", label: "Sport auto", id: "sport" },
   { href: "/courses", label: "Grands Prix", id: "courses" },
@@ -29,10 +32,12 @@ export function Reveal({ children, delay = 0, y = 40, className }) {
   );
 }
 
-export default function Layout({ actif, titre, accroche, eyebrow, logo, children }) {
+export default function Layout({ actif, titre, accroche, eyebrow, logo, seo, children }) {
   const { scrollYProgress } = useScroll();
   const echelle = useSpring(scrollYProgress, { stiffness: 120, damping: 24 });
   const [menu, setMenu] = useState(false);
+  const { asPath } = useRouter();
+  const chemin = seo?.chemin || asPath.split("?")[0].split("#")[0] || "/";
 
   useEffect(() => {
     const fermer = (e) => e.key === "Escape" && setMenu(false);
@@ -43,11 +48,8 @@ export default function Layout({ actif, titre, accroche, eyebrow, logo, children
 
   return (
     <>
-      <Head>
-        <title>{titre ? `${titre} — Carstocars` : "Carstocars"}</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="theme-color" content="#0c0c0d" />
-      </Head>
+      <Seo titre={seo?.titre ?? titre} description={seo?.description ?? accroche} chemin={chemin} type={seo?.type} image={seo?.image} jsonLd={seo?.jsonLd} noindex={seo?.noindex} datePublication={seo?.datePublication} />
+      <a href="#contenu" className="lien-evitement">Aller au contenu</a>
       <motion.div className="progress" style={{ scaleX: echelle }} />
       <header className="nav">
         <a href="/" className="logo">cars<b>to</b>cars</a>
@@ -60,7 +62,7 @@ export default function Layout({ actif, titre, accroche, eyebrow, logo, children
           ))}
         </nav>
       </header>
-      <main>
+      <main id="contenu">
         {titre && (
           <section className="wrap hero">
             <motion.div
@@ -82,9 +84,31 @@ export default function Layout({ actif, titre, accroche, eyebrow, logo, children
         {children}
       </main>
       <footer className="foot">
-        <div className="wrap">
-          <span>© 2026 Carstocars</span>
-          <span>Passion automobile</span>
+        <div className="wrap pied">
+          <div className="pied-marque">
+            <a href="/" className="logo">cars<b>to</b>cars</a>
+            <p>{config.description}</p>
+          </div>
+          <nav aria-label="Explorer">
+            <h4>Explorer</h4>
+            <a href="/actus">Analyses</a>
+            <a href="/auto">Marques</a>
+            <a href="/sport">Sport auto</a>
+            <a href="/courses">Grands Prix</a>
+            <a href="/classement">Classement F1</a>
+          </nav>
+          <nav aria-label="Le site">
+            <h4>Le site</h4>
+            <a href="/a-propos">À propos</a>
+            <a href="/contact">Contact</a>
+            <a href="/mentions-legales">Mentions légales</a>
+            <a href="/confidentialite">Confidentialité</a>
+            <a href="/flux.xml">Flux RSS</a>
+          </nav>
+        </div>
+        <div className="wrap pied-bas">
+          <span>© {new Date().getFullYear()} {config.nom}</span>
+          <span>Logos et marques : propriété de leurs détenteurs, cités à titre d'information.</span>
         </div>
       </footer>
     </>

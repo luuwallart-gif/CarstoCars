@@ -1,0 +1,47 @@
+{
+  "slug": "de-la-f4-a-la-f1-l-echelle-des-monoplaces",
+  "type": "guide",
+  "categorie": "F1",
+  "date": "2026-11-03",
+  "titre": "De la F4 à la F1 : l'échelle des monoplaces",
+  "chapeau": "Pour arriver en Formule 1, les pilotes gravissent plusieurs étages. Voici à quoi correspondent la F4, la F3, la F2 et la F1.",
+  "essentiel": [
+    "La F4 est la porte d'entrée en monoplace, avec des championnats organisés dans de nombreux pays.",
+    "La F3 et la F2 sont des championnats internationaux qui accompagnent des week-ends de Grand Prix de F1.",
+    "Pour courir en F1, un pilote doit obtenir une Super Licence de la FIA, en accumulant des points dans les championnats de formation."
+  ],
+  "sections": [
+    {
+      "titre": "F4 : les premiers pas",
+      "paragraphes": [
+        "La Formule 4 est la première marche après le karting. Les championnats sont nationaux ou régionaux et les voitures sont proches les unes des autres, pour que le talent du pilote fasse la différence.",
+        "On y apprend la conduite d'une monoplace : appui aérodynamique, freinage, gestion des pneus."
+      ]
+    },
+    {
+      "titre": "F3 et F2 : les antichambres de la F1",
+      "paragraphes": [
+        "Le Championnat FIA de Formule 3 et le Championnat FIA de Formule 2 se disputent sur des circuits de Grand Prix, souvent pendant les mêmes week-ends que la F1. Cela permet aux jeunes pilotes d'être vus des équipes de haut niveau.",
+        "Dans chaque championnat, toutes les voitures sont identiques : la compétition se joue sur les qualités du pilote et la préparation de son équipe."
+      ]
+    },
+    {
+      "titre": "F1 : le sommet",
+      "paragraphes": [
+        "En Formule 1, chaque écurie conçoit et développe sa propre voiture. C'est autant une compétition d'ingénieurs que de pilotes.",
+        "Le nombre de places est très limité : une vingtaine de volants seulement pour tout le plateau."
+      ]
+    }
+  ],
+  "liens": [
+    {
+      "label": "Sport auto : F1, F2, F3, F4",
+      "href": "/sport"
+    },
+    {
+      "label": "Classement F1",
+      "href": "/classement"
+    }
+  ],
+  "ia": true
+}
