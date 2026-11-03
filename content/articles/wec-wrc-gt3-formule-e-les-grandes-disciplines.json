@@ -1,0 +1,50 @@
+{
+  "slug": "wec-wrc-gt3-formule-e-les-grandes-disciplines",
+  "type": "guide",
+  "categorie": "WEC",
+  "date": "2026-11-03",
+  "titre": "WEC, WRC, GT3, Formule E : comprendre les grandes disciplines",
+  "chapeau": "Endurance, rallye, voitures de grand tourisme ou monoplaces électriques : ce qui distingue les disciplines du sport automobile hors F1.",
+  "essentiel": [
+    "Le WEC est le championnat du monde d'endurance, avec des courses de plusieurs heures et les 24 Heures du Mans.",
+    "Le WRC est le championnat du monde des rallyes : des spéciales chronométrées sur routes fermées, sur tous types de terrains.",
+    "La GT3 désigne des voitures de course dérivées de modèles de série, alors que la Formule E utilise des monoplaces 100 % électriques."
+  ],
+  "sections": [
+    {
+      "titre": "WEC : l'endurance",
+      "paragraphes": [
+        "Le Championnat du monde d'endurance de la FIA propose des courses de plusieurs heures, jusqu'à 24 heures pour la manche la plus célèbre, les 24 Heures du Mans. Plusieurs pilotes se relaient au volant d'une même voiture.",
+        "Les voitures les plus rapides appartiennent à la catégorie Hypercar. Elles roulent en même temps que des voitures de grand tourisme, ce qui oblige les pilotes à gérer sans cesse le trafic."
+      ]
+    },
+    {
+      "titre": "WRC : le rallye",
+      "paragraphes": [
+        "En rallye, les concurrents ne s'affrontent pas en même temps sur la piste : ils partent à intervalles réguliers et sont chronométrés sur des routes fermées, appelées spéciales. Le meilleur temps cumulé gagne.",
+        "Un équipage se compose d'un pilote et d'un copilote, qui lit les notes décrivant le tracé. Le terrain change selon les épreuves : asphalte, terre, neige ou glace."
+      ]
+    },
+    {
+      "titre": "GT3 : le grand tourisme",
+      "paragraphes": [
+        "Les voitures GT3 ressemblent à des modèles que l'on peut croiser sur route, mais elles sont préparées pour la compétition. De nombreuses marques en proposent, ce qui donne des plateaux très fournis.",
+        "Pour que les voitures restent proches en performance, les organisateurs ajustent leurs caractéristiques avec un système d'équilibrage."
+      ]
+    },
+    {
+      "titre": "Formule E : la monoplace électrique",
+      "paragraphes": [
+        "La Formule E est un championnat de monoplaces entièrement électriques. Les courses ont souvent lieu sur des circuits tracés dans des centres-villes.",
+        "La gestion de l'énergie y est un enjeu majeur : il faut aller vite tout en économisant la batterie."
+      ]
+    }
+  ],
+  "liens": [
+    {
+      "label": "Sport auto : toutes les disciplines",
+      "href": "/sport"
+    }
+  ],
+  "ia": true
+}

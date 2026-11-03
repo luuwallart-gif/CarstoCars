@@ -22,6 +22,7 @@ export default function Auto() {
       actif="auto"
       eyebrow={`${MARQUES.length} constructeurs`}
       titre="Toutes les marques."
+      seo={{ titre: "Toutes les marques automobiles", description: "94 constructeurs automobiles classés par pays : logo, présentation de la marque et modèle phare." }}
       accroche="Des sportives italiennes aux électriques chinoises : filtre par pays ou cherche ta marque."
     >
       <div className="wrap">

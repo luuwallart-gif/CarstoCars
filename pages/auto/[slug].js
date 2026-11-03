@@ -48,7 +48,7 @@ export default function PageMarque({ marque, precedente, suivante, memePays }) {
   const principale = actif || phare?.img;
 
   return (
-    <Layout actif="auto">
+    <Layout actif="auto" seo={{ titre: `${marque.nom} : présentation et modèle phare`, description: `${marque.nom}, constructeur ${marque.pays === "France" ? "français" : "(" + marque.pays + ")"} : présentation de la marque et de son modèle phare${info[0] ? ", " + marque.nom + " " + info[0] : ""}.`, chemin: `/auto/${marque.slug}` }}>
       <div className="wrap" style={{ paddingTop: 36 }}>
         <a href="/auto" className="retour">← Toutes les marques</a>
 

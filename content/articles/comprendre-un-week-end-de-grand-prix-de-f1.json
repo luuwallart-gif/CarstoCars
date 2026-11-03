@@ -1,0 +1,54 @@
+{
+  "slug": "comprendre-un-week-end-de-grand-prix-de-f1",
+  "type": "guide",
+  "categorie": "F1",
+  "date": "2026-11-03",
+  "titre": "Comprendre un week-end de Grand Prix de F1, étape par étape",
+  "chapeau": "Essais libres, qualifications, course, sprint : voici comment s'organise un week-end de Formule 1 et ce qui se joue à chaque séance.",
+  "essentiel": [
+    "Un week-end classique réunit trois séances d'essais libres, des qualifications en trois phases et la course du dimanche.",
+    "Les dix premiers de la course marquent des points : 25 pour le vainqueur, puis 18, 15, 12, 10, 8, 6, 4, 2 et 1.",
+    "Certains week-ends adoptent le format sprint, avec une course courte le samedi qui rapporte aussi des points."
+  ],
+  "sections": [
+    {
+      "titre": "Le vendredi et le samedi matin : les essais libres",
+      "paragraphes": [
+        "Les essais libres servent à régler la voiture, tester les pneus et apprendre le circuit. Aucun point n'est en jeu, mais les équipes y préparent toute leur stratégie de course.",
+        "Sur un week-end classique, il y a deux séances le vendredi et une troisième le samedi, juste avant les qualifications."
+      ]
+    },
+    {
+      "titre": "Le samedi : les qualifications",
+      "paragraphes": [
+        "Les qualifications se déroulent en trois phases, appelées Q1, Q2 et Q3. À la fin de chaque phase, les pilotes les plus lents sont éliminés et prennent le départ derrière les autres.",
+        "Les dix meilleurs se retrouvent en Q3 pour se disputer la pole position, c'est-à-dire la première place sur la grille de départ. Partir devant compte beaucoup : dépasser est difficile sur de nombreux circuits."
+      ]
+    },
+    {
+      "titre": "Le dimanche : la course",
+      "paragraphes": [
+        "La course dure environ 305 kilomètres, sauf sur quelques circuits plus courts comme Monaco. Les pilotes doivent en général utiliser au moins deux types de pneus secs différents, ce qui impose au moins un arrêt aux stands.",
+        "La stratégie de pneus, le moment de l'arrêt et les éventuelles neutralisations de la course décident souvent du résultat autant que la vitesse pure."
+      ]
+    },
+    {
+      "titre": "Le format sprint",
+      "paragraphes": [
+        "Lors de certains week-ends, une course courte, le sprint, est organisée le samedi. Elle rapporte des points aux huit premiers, en plus de ceux de la course du dimanche.",
+        "Ces week-ends ont moins d'essais libres : les équipes ont donc moins de temps pour régler leurs voitures."
+      ]
+    }
+  ],
+  "liens": [
+    {
+      "label": "Calendrier et résultats des Grands Prix",
+      "href": "/courses"
+    },
+    {
+      "label": "Classement F1",
+      "href": "/classement"
+    }
+  ],
+  "ia": true
+}

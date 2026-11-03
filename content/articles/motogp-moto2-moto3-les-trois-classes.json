@@ -1,0 +1,43 @@
+{
+  "slug": "motogp-moto2-moto3-les-trois-classes",
+  "type": "guide",
+  "categorie": "MotoGP",
+  "date": "2026-11-03",
+  "titre": "MotoGP, Moto2, Moto3 : les trois classes du Grand Prix moto",
+  "chapeau": "Trois catégories se disputent chaque week-end de Grand Prix moto, avec des machines et des profils de pilotes bien différents.",
+  "essentiel": [
+    "La Moto3 est la classe d'entrée, avec des machines monocylindres de 250 cm³.",
+    "En Moto2, tous les pilotes utilisent un moteur trois cylindres fourni par Triumph.",
+    "La MotoGP est la classe reine, avec des prototypes de 1 000 cm³ jusqu'à la saison 2026."
+  ],
+  "sections": [
+    {
+      "titre": "Moto3 : le point de départ",
+      "paragraphes": [
+        "La Moto3 accueille de très jeunes pilotes sur des machines légères et peu puissantes. Les courses se jouent souvent en grappe, avec de nombreux dépassements.",
+        "C'est dans cette classe que se révèlent la plupart des futurs champions."
+      ]
+    },
+    {
+      "titre": "Moto2 : l'étape intermédiaire",
+      "paragraphes": [
+        "La Moto2 utilise un moteur commun à tous les concurrents. Les différences viennent donc du châssis, des réglages et du pilote.",
+        "Les pilotes y apprennent à gérer une moto plus puissante avant de passer en MotoGP."
+      ]
+    },
+    {
+      "titre": "MotoGP : la classe reine",
+      "paragraphes": [
+        "Les constructeurs engagent leurs propres prototypes, développés pour la course. C'est la catégorie la plus rapide et la plus technique.",
+        "Chaque week-end comprend, en plus de la course du dimanche, un sprint plus court le samedi, qui rapporte aussi des points."
+      ]
+    }
+  ],
+  "liens": [
+    {
+      "label": "Sport auto : MotoGP et autres disciplines",
+      "href": "/sport"
+    }
+  ],
+  "ia": true
+}

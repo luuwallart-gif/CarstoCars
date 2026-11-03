@@ -5,7 +5,7 @@ const NOMS_VOITURES = ["Formule 1", "WRC", "GT3", "Hypercar WEC"];
 const IDS_VOITURES = ["f1", "wrc", "gt3", "wec"];
 
 const CHAPITRES = [
-  { id: "actus", nom: "Actualités", kicker: "Le quotidien de l'auto", titre: "Tout ce qui roule.", texte: "Essais, nouveautés et infos des meilleures rédactions, au même endroit.", lien: "#actus", bouton: "Lire les actus" },
+  { id: "actus", nom: "Actualités", kicker: "Le quotidien de l'auto", titre: "Tout ce qui roule.", texte: "Des analyses claires de l'actualité auto et sport auto, avec la source à chaque fois.", lien: "/actus", bouton: "Lire les analyses" },
   { id: "marques", nom: "Marques", kicker: "94 constructeurs", titre: "Toutes les marques.", texte: "Des sportives italiennes aux électriques chinoises : logo, histoire et modèle phare.", lien: "/auto", bouton: "Explorer les marques" },
   { id: "sport", nom: "Sport auto", kicker: "9 compétitions", titre: "Chaque course compte.", texte: "F1, WRC, WEC, Formule E, MotoGP : suis ta discipline, actu après actu.", lien: "/sport", bouton: "Voir le sport auto" },
   { id: "gp", nom: "Grands Prix", kicker: "Formule 1", titre: "Le monde en circuits.", texte: "Une carte, un calendrier et le podium de chaque Grand Prix depuis 2015.", lien: "/courses", bouton: "Ouvrir la carte" },

@@ -2,6 +2,23 @@ import { useState, useEffect, useMemo } from "react";
 import Layout, { Reveal } from "../components/Layout";
 import ScrollScene from "../components/ScrollScene";
 import Bandeau from "../components/Bandeau";
+import Couverture from "../components/Couverture";
+import { tousLesArticles, resume } from "../lib/articles";
+import { dateFr } from "../lib/articles-client";
+
+export function getStaticProps() {
+  return { props: { analyses: tousLesArticles().slice(0, 3).map(resume) } };
+}
+
+function depuis(iso) {
+  const t = Date.parse(iso);
+  if (!t) return "";
+  const h = Math.round((Date.now() - t) / 36e5);
+  if (h < 1) return "à l'instant";
+  if (h < 24) return `il y a ${h} h`;
+  const j = Math.round(h / 24);
+  return j === 1 ? "hier" : j < 8 ? `il y a ${j} j` : "";
+}
 
 function Carte({ a, grand }) {
   return (
@@ -10,7 +27,7 @@ function Carte({ a, grand }) {
         <div className="pic"><img src={a.image} alt="" loading="lazy" /></div>
       )}
       <div className="body">
-        <span className="tag">{a.source}</span>
+        <span className="tag">{a.source}{a.date && depuis(a.date) ? <span className="date-rel"> · {depuis(a.date)}</span> : null}</span>
         <h3>{a.titre}</h3>
         {a.resume && <p>{a.resume}</p>}
         <span className="more">Lire l'article <i>→</i></span>
@@ -19,7 +36,7 @@ function Carte({ a, grand }) {
   );
 }
 
-export default function Home() {
+export default function Home({ analyses = [] }) {
   const [articles, setArticles] = useState([]);
   const [chargement, setChargement] = useState(true);
   const [source, setSource] = useState("Tout");
@@ -46,9 +63,41 @@ export default function Home() {
       <ScrollScene />
       <Bandeau mots={["Formule 1", "MotoGP", "WEC", "WRC", "Formule E", "GT World", "F2", "F3"]} />
 
-      <div className="wrap" id="actus" style={{ paddingTop: 72 }}>
-        <p className="eyebrow">Actualité automobile</p>
-        <h2 className="titre-section">Les dernières infos.</h2>
+      {analyses.length > 0 && (
+        <div className="wrap bloc" id="analyses">
+          <div className="section-tete">
+            <div>
+              <p className="eyebrow">Nos analyses</p>
+              <h2 className="titre-section" style={{ margin: 0 }}>À lire en ce moment.</h2>
+            </div>
+            <a href="/actus">Toutes les analyses →</a>
+          </div>
+          <div className="grid">
+            {analyses.map((a, i) => (
+              <Reveal key={a.slug} delay={i * 0.08}>
+                <a href={`/actus/${a.slug}`} className="card">
+                  <Couverture categorie={a.categorie} type={a.type} />
+                  <div className="body">
+                    <span className="tag">{a.type === "guide" ? "Guide" : a.categorie} · {dateFr(a.date)}</span>
+                    <h3>{a.titre}</h3>
+                    <p>{a.chapeau}</p>
+                    <span className="more">{a.minutes} min de lecture <i>→</i></span>
+                  </div>
+                </a>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="wrap bloc" id="actus">
+        <div className="section-tete">
+          <div>
+            <p className="eyebrow">Revue de presse</p>
+            <h2 className="titre-section" style={{ margin: 0 }}>Les dernières infos.</h2>
+          </div>
+          <p>Titres et résumés issus de médias spécialisés. Chaque carte renvoie vers l'article d'origine.</p>
+        </div>
         <div className="bar">
           {sources.map((s) => (
             <button key={s} className={`chip${source === s ? " on" : ""}`} onClick={() => setSource(s)}>{s}</button>
