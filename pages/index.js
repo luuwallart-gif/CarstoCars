@@ -3,6 +3,7 @@ import Layout, { Reveal } from "../components/Layout";
 import ScrollScene from "../components/ScrollScene";
 import Bandeau from "../components/Bandeau";
 import Couverture from "../components/Couverture";
+import config from "../site.config";
 import { tousLesArticles, resume } from "../lib/articles";
 import { dateFr } from "../lib/articles-client";
 
@@ -59,7 +60,7 @@ export default function Home({ analyses = [] }) {
   const [une, ...reste] = liste;
 
   return (
-    <Layout actif="accueil" titre="">
+    <Layout actif="accueil" titre="" seo={{ chemin: "/", jsonLd: { "@context": "https://schema.org", "@graph": [{ "@type": "WebSite", name: config.nom, url: config.url, inLanguage: "fr-FR", description: config.description }, { "@type": "Organization", name: config.nom, url: config.url, logo: config.url + "/apple-touch-icon.png" }] } }}>
       <ScrollScene />
       <Bandeau mots={["Formule 1", "MotoGP", "WEC", "WRC", "Formule E", "GT World", "F2", "F3"]} />
 
